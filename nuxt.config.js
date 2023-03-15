@@ -1,4 +1,5 @@
 export default {
+  mode:'universal',
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'curso',
@@ -35,6 +36,8 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/axios'
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
