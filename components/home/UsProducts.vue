@@ -25,7 +25,10 @@ export default {
     };
   },
   created() {
-    const response = db.collection("products").get();
+    const response = db
+      .collection("products")
+      .limit(4)
+      .get();
     response
       .then((snapshot) => {
         snapshot.forEach((doc) => {

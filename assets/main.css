@@ -1,0 +1,15 @@
+h1{
+    @apply text-5xl font-serif text-secondary font-bold mb-4;
+}
+h2{
+    @apply text-4xl font-serif text-secondary font-bold mb-4;
+}
+h3{
+    @apply text-xl text-secondary uppercase;
+}
+h4{
+    @apply text-sm text-secondary uppercase font-bold; 
+}
+p{
+    @apply text-gray-500 font-light max-w-2xl leading-7;
+}

@@ -115,6 +115,7 @@
 import { db } from "@/plugins/firebase";
 export default {
   middleware:'auth',
+  layout:'admin',
     data(){
         return{
             product:null

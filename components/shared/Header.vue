@@ -5,14 +5,13 @@
       aria-label="Global"
     >
       <div class="flex lg:flex-1">
-        <a href="#" class="-m-1.5 p-1.5">
-          <span class="sr-only">Your Company</span>
+        <nuxt-link to="/" class="-m-1.5 p-1.5">
           <img
-            class="h-8 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            class="h-16 w-auto"
+            src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/logoInquieto.png?alt=media&token=d3dae27b-b6c9-4620-866c-349bc2659b20"
             alt=""
           />
-        </a>
+        </nuxt-link>
       </div>
       <div class="flex lg:hidden">
         <button
@@ -36,53 +35,33 @@
           </svg>
         </button>
       </div>
-      <div class="hidden lg:flex lg:gap-x-12">
-        <div class="relative">
-          <button
-            type="button"
-            class="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
-            aria-expanded="false"
-          >
-            Product
-            <svg
-              class="h-5 w-5 flex-none text-gray-400"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </button>
-
-          <!--
-          'Product' flyout menu, show/hide based on flyout menu state.
-
-          Entering: "transition ease-out duration-200"
-            From: "opacity-0 translate-y-1"
-            To: "opacity-100 translate-y-0"
-          Leaving: "transition ease-in duration-150"
-            From: "opacity-100 translate-y-0"
-            To: "opacity-0 translate-y-1"
-        --></div>
-
-        <a href="#" class="text-sm font-semibold leading-6 text-gray-900"
-          >Features</a
+      <div class="hidden lg:flex lg:gap-x-12 uppercase text-xs">
+        <nuxt-link
+          to="/"
+          class="flex items-center gap-x-1 font-semibold leading-6 text-primary text-opacity-60"
         >
-        <a href="#" class="text-sm font-semibold leading-6 text-gray-900"
-          >Marketplace</a
+          Inicio
+        </nuxt-link>
+        <nuxt-link
+          to="/catalogo"
+          class="flex items-center gap-x-1 font-semibold leading-6 text-primary text-opacity-60"
         >
-        <a href="#" class="text-sm font-semibold leading-6 text-gray-900"
-          >Company</a
+          Productos
+        </nuxt-link>
+        <nuxt-link to="/nosotros" class="font-semibold leading-6 text-primary text-opacity-60"
+          >Nosotros</nuxt-link
+        >
+        <nuxt-link to="/contacto" class="font-semibold leading-6 text-primary text-opacity-60"
+          >Contacto</nuxt-link
         >
       </div>
       <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-        <button @click="logOut" href="#" class="text-sm font-semibold leading-6 text-gray-900"
-          >Log in <span aria-hidden="true">&rarr;</span></button
+        <button
+          @click="toggleCart"
+          class="text-xs uppercase font-semibold leading-6 text-primary text-opacity-60"
         >
+          Carrito
+        </button>
       </div>
     </nav>
     <!-- Mobile menu, show/hide based on menu open state. -->
@@ -211,7 +190,6 @@
             </div>
             <div class="py-6">
               <button
-                @click="logOut"
                 href="/login"
                 class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
               >
@@ -226,15 +204,13 @@
 </template>
 
 <script>
-import { db, firebase } from '@/plugins/firebase'
 export default {
   name: "Header",
-  methods:{
-    logOut(){
-      firebase.auth().signOut()
-      this.$router.push('/')
+  methods: {
+    toggleCart(){
+      this.$emit('click');
     }
-  }
+  },
 };
 </script>
 

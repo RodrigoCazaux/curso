@@ -1,26 +1,26 @@
 <template>
-  <div  @click.stop="$router.push(category+'/'+slug)" class="group relative col-span-3">
+  <div
+    @click.stop="$router.push(slug)"
+    class="group relative col-span-3 cursor-pointer"
+  >
     <div
-      class="min-h-80 aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80"
+      class="min-h-80 relative aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80"
     >
       <img
         :src="image"
-        alt="Front of men&#039;s Basic Tee in black."
+        alt="product image"
         class="h-full w-full object-cover object-center lg:h-full lg:w-full"
       />
+      <span
+        class="mt-1 bottom-5 left-5 text-xs absolute text-gray-300 py-1 px-4 bg-slate-700 bg-opacity-20 mb-2 rounded-sm"
+        >{{ category }}</span
+      >
     </div>
-    <div class="mt-4 flex justify-between z-20">
-      <div>
-        <h3 class="text-sm text-gray-700">
-          <a>
-            <span aria-hidden="true" class="absolute inset-0"></span>
-            {{ name }}
-          </a>
-        </h3>
-        <button  @click="$router.push(category)"  class="mt-1 text-sm text-gray-500">{{ category }}</button>
-      </div>
-      <p class="text-sm font-medium text-gray-900">${{ price }}</p>
-      <burron  @click.stop="$router.push(category+'/'+slug)">See more</burron>
+    <div class="mt-4 text-left">
+      <h4 class="mt-1">
+        {{ name }}
+      </h4>
+      <p class="text-sm text-gray-500">UYU {{ price }}</p>
     </div>
   </div>
 </template>
@@ -34,7 +34,7 @@ export default {
     category: { type: String, default: "shirt" },
     price: { type: String, default: "35" },
     slug: { type: String, default: "product-name" },
-    image: {type:String, default: ""}
+    image: { type: String, default: "" },
   },
 };
 </script>

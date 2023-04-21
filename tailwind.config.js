@@ -1,19 +1,18 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./components/**/*.{js,vue,ts}",
-    "./layouts/**/*.vue",
-    "./pages/**/*.vue",
-    "./plugins/**/*.{js,ts}",
-    "./nuxt.config.{js,ts}",
-  ],
+  content: [],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary:'#87020e',
+        secondary: '#314467',
+        secondarylight:'#a25f4b',
+        background:'#f6f6f6'
+      },
+      spacing: {
+        '128': '49rem',
+      }
+    },
   },
-  plugins: [
-    require('./plugins/tailwind/heading'),
-    require('./plugins/tailwind/title'),
-    require('./plugins/tailwind/subtitle'),
-    require('./plugins/tailwind/body'),
-    require('./plugins/tailwind/link'),
-  ],
+  plugins: [],
 }
