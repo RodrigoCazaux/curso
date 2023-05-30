@@ -1,5 +1,16 @@
 <template>
   <div>
+    <div class="absolute z-50 top-0 left-0 bg-secondary h-screen w-full hero-bg">
+      <section class="bg-white flex flex-col justify-center items-center bg-opacity-20 h-full w-full bg-gradient-to-t from-black to-transparent">
+        <img
+            class="h-32 w-auto mb-6"
+            src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/logoInquieto.png?alt=media&token=d3dae27b-b6c9-4620-866c-349bc2659b20"
+            alt=""
+          />
+          <h5 class="font-bold leading-tight text-gray-200 text-2xl">Estamos remodelando</h5>
+          <p class="text-gray-400">En poco tiempo estaremos de vuelta para ofrecerte la mejor experiencia de vinos online.</p>
+      </section>
+    </div>
     <Hero />
     <section>
       <div class="container mx-auto px-4 pb-32 pt-48">
@@ -63,3 +74,11 @@ export default {
   },
 };
 </script>
+
+<style>
+.hero-bg {
+  background-image: url("https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/bannerInquietos.jpeg?alt=media&token=18c65a7c-00ea-455e-8edd-f0a5b20b8f46");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+</style>
