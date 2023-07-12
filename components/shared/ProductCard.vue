@@ -11,12 +11,12 @@
         alt="product image"
         class="h-full w-full object-cover object-center lg:h-full lg:w-full"
       />
-      <span
-        class="mt-1 bottom-5 left-5 text-xs absolute text-gray-300 py-1 px-4 bg-slate-700 bg-opacity-20 mb-2 rounded-sm"
-        >{{ category }}</span
-      >
     </div>
     <div class="mt-4 text-left">
+      <span
+        class="mt-1 text-xs text-gray-500 py-1 px-4 bg-secondary bg-opacity-5 mb-2 rounded-sm"
+        >{{ category }}</span
+      >
       <h4 class="mt-1">
         {{ name }}
       </h4>

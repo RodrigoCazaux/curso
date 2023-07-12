@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white mx-24 px-10">
+  <div class="bg-white mx-24 px-10 pb-8">
     <div class="pt-6">
       <nav aria-label="Breadcrumb">
         <ol
@@ -27,7 +27,7 @@
           <li>
             <div class="flex items-center">
               <a href="#" class="mr-2 text-sm font-medium text-gray-900">{{
-                product.category
+                product.product_categories
               }}</a>
               <svg
                 width="16"
@@ -47,7 +47,7 @@
               href="#"
               aria-current="page"
               class="font-medium text-gray-500 hover:text-gray-600"
-              >{{ product.name }}</a
+              >{{ product.product_name }}</a
             >
           </li>
         </ol>
@@ -57,7 +57,7 @@
       <div class="grid grid-cols-12 mx-auto pt-8">
         <div class="col-span-6 pb-8 mt-4 mr-8">
           <img
-            :src="product.image"
+            :src="product.main_variant_image"
             alt="Model wearing plain white basic tee."
             class="h-full w-full object-cover object-center"
           />
@@ -66,44 +66,41 @@
         <!-- Options -->
         <div class="pt-4 lg:row-span-3 lg:mt-0 col-span-6">
           <h1
-            class="text-2xl font-bold tracking-tight text-secondary sm:text-3xl mb-2 uppercase"
+            class="text-2xl font-bold text-secondary sm:text-3xl mb-2 uppercase"
           >
-            {{ product.name }}
+            {{ product.product_name }}
           </h1>
-          <p class="text-gray-500 font-light leading-7 mb-2">
-            {{ product.description }}
-          </p>
-          <p class="text-3xl tracking-tight text-secondary mb-2">
-            ${{ product.price }}
+          <p class="text-3xl text-secondary mb-2">
+            ${{ product.variant_price }}
           </p>
           <InputNumber :value="cantidad" @input="updaeValue" class="mb-2" />
           <PrimaryButton @click="addToCart" text="Agregar al carrito" />
           <div class="mt-10">
-            <h3 class="text-sm font-medium text-gray-900">Highlights</h3>
+            <h3 class="text-sm font-medium text-gray-900">Detalles</h3>
             <div class="mt-4">
               <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
                 <li class="text-gray-400">
-                  <span class="text-gray-600">Hand cut and sewn locally</span>
+                  <span class="text-gray-600">MARTIN VIGGIANO</span>
                 </li>
 
                 <li class="text-gray-400">
-                  <span class="text-gray-600"
-                    >Dyed with our proprietary colors</span
-                  >
+                  <span class="text-gray-600">2021</span>
                 </li>
 
                 <li class="text-gray-400">
-                  <span class="text-gray-600">Pre-washed &amp; pre-shrunk</span>
+                  <span class="text-gray-600">URUGUAY</span>
                 </li>
 
                 <li class="text-gray-400">
-                  <span class="text-gray-600">Ultra-soft 100% cotton</span>
+                  <span class="text-gray-600">750CC</span>
                 </li>
               </ul>
             </div>
           </div>
+          <!-- Reviews -->
 
-          <div class="mt-10">
+          <!-- 
+            <div class="mt-10">
             <h2 class="text-sm font-medium text-gray-900">Details</h2>
 
             <div class="mt-4 space-y-6">
@@ -112,12 +109,12 @@
               </p>
             </div>
           </div>
-          <!-- Reviews -->
-          <div class="mt-6">
+            
+            <div class="mt-6">
             <h3 class="sr-only">Reviews</h3>
             <div class="flex items-center">
               <div class="flex items-center">
-                <!-- Active: "text-gray-900", Default: "text-gray-200" -->
+             
                 <svg
                   class="text-gray-900 h-5 w-5 flex-shrink-0"
                   viewBox="0 0 20 20"
@@ -190,8 +187,11 @@
                 >117 reviews</a
               >
             </div>
-          </div>
+          </div> -->
         </div>
+        <p class="col-span-12 text-gray-500 font-light leading-7 mb-2">
+            {{ product.product_description }}
+          </p>
       </div>
     </div>
   </div>
@@ -210,7 +210,9 @@ export default {
   },
   components: { InputNumber, PrimaryButton },
   async asyncData({ params }) {
-    const ref = db.collection("products").where("slug", "==", params.slug);
+    const ref = db
+      .collection("Vinos")
+      .where("product_handle", "==", params.slug);
     let snapshot;
     try {
       snapshot = await ref.get();
@@ -224,13 +226,13 @@ export default {
       this.cantidad = newOne;
     },
     addToCart() {
-      const total = parseInt(this.product.price) * this.cantidad;
+      const total = parseInt(this.product.variant_price) * this.cantidad;
       this.$store.commit("addItem", {
         id: this.product.id,
-        name: this.product.name,
-        image: this.product.image,
+        name: this.product.product_name,
+        image: this.product.main_variant_image,
         qty: this.cantidad,
-        category: this.product.category,
+        category: this.product.product_categories,
         price: total,
       });
       eventBus.$emit("addToCart");

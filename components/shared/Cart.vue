@@ -84,7 +84,7 @@
         <p class="mt-0.5 text-sm text-gray-500">
           Envío e impuestos calculados al finalizar la compra.
         </p>
-        <div @click="enviarOrden" class="mt-6">
+        <div class="mt-6">
           <PrimaryButton @click="enviarOrden" text="Enviar Por Whatsapp" />
         </div>
         <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
@@ -127,12 +127,17 @@ export default {
       this.$emit("click");
     },
     enviarOrden() {
-      var number = 12321312;
-      var pedido = "Hola";
+      var number = +59896260462;
+      var pedido = "";
       var total = 12;
-      console.log("hola");
+      const itemsLength = this.items.length;
+      for (let i = 0; i < itemsLength; i++) {
+        const item = this.items[i];
+        pedido = pedido + "x"+item.qty+' '+ item.name +' || ';
+        console.log(item.name + item.qty);
+      }
       window.open(
-        `https://api.whatsapp.com/send?phone=${number}&text=%20${pedido}. *Subtotal:${total}*`
+        `https://api.whatsapp.com/send?phone=${number}&text=%20${pedido}. **SUBTOTAL:${total}**`
       );
     },
     removeFromCart(item) {

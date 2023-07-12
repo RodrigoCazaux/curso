@@ -1,5 +1,5 @@
 <template>
-  <button class="learn-more">
+  <button @click="$emit('click')" class="learn-more">
     <span class="circle" aria-hidden="true">
       <span class="icon arrow"></span>
     </span>

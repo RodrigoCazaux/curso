@@ -9,11 +9,11 @@
           >
             EXPERIENCIAS DE VINOS
           </h1>
-          <p>
+          <p class="mb-4">
             Difundimos la cultura del vino a través de propuestas que eleven el
             placer de beber.
           </p>
-          <PrimaryButton/>
+          <PrimaryButton @click="$router.push('/catalogo')" text="Ver Productos"/>
         </div>
       </div>
     </main>
