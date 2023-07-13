@@ -21,7 +21,7 @@
           src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/banner.jpeg?alt=media&token=8c33fadf-da1c-43c8-abc9-a15a2ff64dd5"
         />
       </div>
-      <h2>Vinos finos del Uruguay</h2>
+      <h3 class="uppercase">Vinos finos del Uruguay</h3>
       <p class="text-center">
         Somos una empresa orgullosamente uruguaya dedicada a la comercialización
         de vinos de alta calidad. Nuestra empresa se enorgullece de promover y
@@ -33,7 +33,12 @@
     </section>
     <section class="py-28 space-y-20">
       <div class="flex space-x-20">
-        <div class="bg-gray-200 h-72 w-6/12"></div>
+        <div class="bg-gray-200 h-96 w-6/12">
+          <img
+            class="object-cover w-full h-full top-0"
+            src="https://uploads-ssl.webflow.com/636f2dc9ef41c9384311dd93/637e89bde717ce67dabfca81_Santiago.png"
+          />
+        </div>
         <div class="w-6/12">
           <h3 class="mb-2">Eventos de degustación</h3>
           <hr class="mb-2 border-primary border-opacity-30 w-1/12" />
@@ -69,7 +74,12 @@
             próximos eventos y visitas!
           </p>
         </div>
-        <div class="bg-gray-200 h-72 w-6/12"></div>
+        <div class="bg-gray-200 h-96 w-6/12">
+          <img
+            class="object-cover w-full h-full"
+            src="https://uploads-ssl.webflow.com/636f2dc9ef41c9384311dd93/637e8a807a9f4cb8cf6ae335_eventoUno.png"
+          />
+        </div>
       </div>
     </section>
   </div>
