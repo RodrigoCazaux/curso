@@ -1,20 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
 body{
-    font-family: Karla
+
+    font-family: Karla,sans-serif;
 }
 
 h1{
     @apply text-4xl text-secondary text-opacity-95 uppercase font-semibold leading-10;
 }
 h2{
-    @apply text-4xl text-secondary font-bold mb-4;
+    @apply text-4xl text-secondary font-bold mb-4 leading-10;
 }
 h3{
-    @apply text-xl text-secondary uppercase font-semibold left-10;
+    @apply text-xl text-secondary uppercase font-semibold left-10 leading-10;
 }
 h4{
-    @apply text-sm text-secondary uppercase font-bold; 
+    @apply text-sm text-secondary uppercase font-bold leading-10; 
 }
 p{
     @apply text-gray-500 font-light max-w-2xl leading-7;
