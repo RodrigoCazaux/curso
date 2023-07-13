@@ -1,11 +1,8 @@
-/** @type {import('tailwindcss').Config} */
+const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   content: [],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['Karla', ...defaultTheme.fontFamily.sans],
-      },
       colors: {
         primary:'#87020e',
         secondary: '#314467',
