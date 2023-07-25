@@ -2,7 +2,7 @@
   <div>
     <Hero />
     <section class="mb-24">
-      <div class="container mx-auto pr-4 bg-gray-100 shadow-xl rounded-lg">
+      <div class="container mx-auto pr-4 bg-gray-100 p-8 shadow-xl rounded-lg">
         <div class="items-center flex flex-row-reverse flex-wrap">
           <div class="w-full md:w-5/12 ml-auto pr-12 md:px-4">
             <div class="md:pr-12">
@@ -17,7 +17,7 @@
             </div>
           </div>
 
-          <div class="w-full md:w-6/12 h-96 mr-auto pr-4 pt-24 md:pt-0">
+          <div class="w-full md:w-6/12 h-96 mr-auto pr-4 pt-24 md:pt-0 hidden md:flex">
             <img
               alt="..."
               class="w-full h-full object-cover rounded-l-lg shadow-xl"

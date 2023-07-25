@@ -1,11 +1,11 @@
 <template>
   <div class="pb-8">
     <section
-      class="flex flex-col items-start justify-center px-32 h-72 bg-secondary -mx-32 -mt-16 mb-8 banner bg-no-repeat"
+      class="flex flex-col items-start justify-center px-8 md:px-32 h-72 bg-secondary -mx-10 md:-mx-32 -mt-16 mb-8 banner bg-no-repeat"
     >
       <h1 class="text-white">Nuestros Vinos</h1>
       <hr class="border-secondary border w-1/12 mb-4" />
-      <p class="text-gray-400 w-4/12 leading-6">
+      <p class="text-gray-400 w-10/12 md:w-4/12 leading-6">
         Un viaje de degustación a través de nuestra selección única de vinos
         finos
       </p>

@@ -2,7 +2,7 @@
   <div>
     <Header @click="cart" />
     <Cart @click="cart" :showCart="openCart" />
-    <div class="px-32 py-16 bg-background">
+    <div class="px-10 md:px-32 py-16 bg-background">
       <nuxt />
     </div>
     <Footer/>

@@ -1,7 +1,7 @@
 <template>
   <div
     @click.stop="$router.push(slug)"
-    class="group relative col-span-3 cursor-pointer"
+    class="group relative col-span-12 md:col-span-3 cursor-pointer"
   >
     <div
       class="min-h-80 relative aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80"
