@@ -1,6 +1,7 @@
 <template>
   <div>
-    <Header @click="cart" />
+    <Header @click="cart" @openMobileMenu="openMenu"/>
+    <MobileMenu v-if="showMobileMenu" @openMobileMenu="openMenu"/>
     <Cart @click="cart" :showCart="openCart" />
     <div class="px-10 md:px-32 py-16 bg-background">
       <nuxt />
@@ -11,6 +12,7 @@
 
 <script>
 import Header from "@/components/shared/Header.vue";
+import MobileMenu from "@/components/shared/MobileMenu.vue";
 import Cart from "@/components/shared/Cart.vue";
 import eventBus from '@/plugins/eventBus';
 import Footer from '~/components/shared/Footer.vue';
@@ -19,10 +21,12 @@ export default {
     Header,
     Cart,
     Footer,
+    MobileMenu
   },
   data() {
     return {
       openCart: false,
+      showMobileMenu: false
     };
   },
   created() {
@@ -35,6 +39,10 @@ export default {
     cart() {
       this.openCart = !this.openCart;
     },
+    openMenu(){
+      console.log('in')
+      this.showMobileMenu = !this.showMobileMenu;
+    }
   },
 };
 </script>

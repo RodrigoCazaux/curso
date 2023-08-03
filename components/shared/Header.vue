@@ -15,6 +15,7 @@
       </div>
       <div class="flex lg:hidden">
         <button
+          @click="$emit('openMobileMenu')"
           type="button"
           class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
         >
@@ -48,10 +49,14 @@
         >
           Productos
         </nuxt-link>
-        <nuxt-link to="/nosotros" class="font-semibold leading-6 text-primary text-opacity-60"
+        <nuxt-link
+          to="/nosotros"
+          class="font-semibold leading-6 text-primary text-opacity-60"
           >Nosotros</nuxt-link
         >
-        <nuxt-link to="/contacto" class="font-semibold leading-6 text-primary text-opacity-60"
+        <nuxt-link
+          to="/contacto"
+          class="font-semibold leading-6 text-primary text-opacity-60"
           >Contacto</nuxt-link
         >
       </div>
@@ -71,9 +76,9 @@
 export default {
   name: "Header",
   methods: {
-    toggleCart(){
-      this.$emit('click');
-    }
+    toggleCart() {
+      this.$emit("click");
+    },
   },
 };
 </script>

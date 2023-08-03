@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white mx-24 px-10 pb-8">
+  <div class="bg-white mx-0 md:mx-24 px-10 pb-8">
     <div class="pt-6">
       <nav aria-label="Breadcrumb">
         <ol
@@ -55,7 +55,7 @@
 
       <!-- Product info -->
       <div class="grid grid-cols-12 mx-auto pt-8">
-        <div class="col-span-6 pb-8 mt-4 mr-8">
+        <div class="col-span-12 md:col-span-6 pb-8 mt-4 mr-8">
           <img
             :src="product.main_variant_image"
             alt="Model wearing plain white basic tee."
@@ -64,7 +64,7 @@
         </div>
 
         <!-- Options -->
-        <div class="pt-4 lg:row-span-3 lg:mt-0 col-span-6">
+        <div class="pt-4 lg:row-span-3 lg:mt-0 col-span-12 md:col-span-6">
           <h1
             class="text-2xl font-bold text-secondary sm:text-3xl mb-2 uppercase"
           >

@@ -129,7 +129,7 @@ export default {
     enviarOrden() {
       var number = +59896260462;
       var pedido = "";
-      var total = 12;
+      var total = this.total;
       const itemsLength = this.items.length;
       for (let i = 0; i < itemsLength; i++) {
         const item = this.items[i];
