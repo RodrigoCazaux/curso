@@ -1,9 +1,9 @@
 <template>
   <div class="bg-secondary h-screen w-8/12 fixed top-0 left-0 z-50 px-10 py-6">
-    <nuxt-link to="/" class="-m-1.5 p-1.5 mb-10">
+    <nuxt-link to="/" class="-m-1.5 p-1.5 mb-16">
       <img
-        class="h-16 w-auto"
-        src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/logoInquieto.png?alt=media&token=d3dae27b-b6c9-4620-866c-349bc2659b20"
+        class="h-14 w-auto"
+        src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/inquietoIcon.png?alt=media&token=b4b3047b-c061-4937-be49-13203f662918"
         alt=""
       />
     </nuxt-link>
