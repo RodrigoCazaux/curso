@@ -1,10 +1,11 @@
 <template>
   <div v-if="product">
+    <img :src="product.main_variant_image" />
     <form>
       <div class="relative z-0 w-full mb-6 group">
         <input
           type="text"
-          v-model="product.name"
+          v-model="product.product_name"
           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
           placeholder=" "
           required
@@ -18,35 +19,21 @@
       <div class="relative z-0 w-full mb-6 group">
         <input
           type="text"
-          :placeholder="slug"
+          v-model="product.product_handle"
           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
           required
         />
         <label
           for="floating_email"
           class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >Slug</label
+          >Handle</label
         >
       </div>
       <div class="grid md:grid-cols-2 md:gap-6">
         <div class="relative z-0 w-full mb-6 group">
           <input
             type="text"
-            v-model="product.description"
-            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-          />
-          <label
-            for="floating_first_name"
-            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            >Description</label
-          >
-        </div>
-        <div class="relative z-0 w-full mb-6 group">
-          <input
-            type="text"
-            v-model="product.category"
+            v-model="product.product_categories"
             class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder=" "
             required
@@ -61,7 +48,7 @@
         <div class="relative z-0 w-full mb-6 group">
           <input
             type="text"
-            v-model="product.price"
+            v-model="product.variant_price"
             class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder=" "
             required
@@ -74,7 +61,8 @@
         <div class="relative z-0 w-full mb-6 group">
           <input
             type="file"
-            v-on="product.image"
+            @change="onFileChange"
+            v-on="product.main_variant_image"
             class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder=" "
             required
@@ -89,7 +77,7 @@
       <div class="relative z-0 w-full mb-6 group">
         <textarea
           type="text"
-          v-model="product.text"
+          v-model="product.product_description"
           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
           placeholder=" "
           required
@@ -112,34 +100,65 @@
 </template>
 
 <script>
-import { db } from "@/plugins/firebase";
+import { db, firebase } from "@/plugins/firebase";
+import "firebase/storage";
 export default {
-  middleware:'auth',
-  layout:'admin',
-    data(){
-        return{
-            product:null
+  middleware: "auth",
+  layout: "admin",
+  data() {
+    return {
+      product: null,
+    };
+  },
+  created() {
+    const productHandle = this.$route.params.id; // Obtén el product_handle de la ruta
+    console.log(productHandle);
+    db.collection("Vinos")
+      .where("product_handle", "==", productHandle)
+      .get()
+      .then((querySnapshot) => {
+        if (!querySnapshot.empty) {
+          // Verifica si la consulta no está vacía
+          const doc = querySnapshot.docs[0]; // Obtén el primer documento de la lista
+          this.product = doc.data(); // Asigna los datos del documento a la variable product
+          console.log(this.product);
+        } else {
+          // Maneja el caso en que no se encontró ningún producto con el product_handle especificado
+          console.log("No se encontró ningún producto con ese product_handle.");
         }
+      })
+      .catch((error) => {
+        console.error("Error al obtener el producto:", error);
+      });
+  },
+  methods: {
+    onFileChange(event) {
+      this.product.main_variant_image = event.target.files[0];
     },
-    created() {
-        const response = db.collection("products").doc(this.$route.params.id).get()
-        response.then(doc => {
-            if(doc.exists) {
-                this.product = doc.data()
-            }
+    async onUpdate() {
+      const ref = db.collection("Vinos").doc(this.$route.params.id);
+
+      // Verifica si hay una nueva imagen para cargar
+      if (this.product.main_variant_image) {
+        const storageRef = firebase.storage().ref();
+        const imageRef = storageRef.child(
+          `products/${this.product.product_name}/${this.product.main_variant_image.name}`
+        );
+        const snapshot = await imageRef.put(this.product.main_variant_image);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        this.product.main_variant_image = downloadURL;
+      }
+
+      const response = ref.update(this.product);
+      response
+        .then(() => {
+          this.$router.back();
         })
+        .catch((error) => {
+          console.log(error);
+        });
     },
-    methods:{
-        onUpdate(){
-            const ref = db.collection('products').doc(this.$route.params.id)
-            const response = ref.update(this.product)
-            response.then(() => {
-                this.$router.back()
-            }).catch(error => {
-                console.log(error)
-            })
-        }
-    }
+  },
 };
 </script>
 

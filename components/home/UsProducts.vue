@@ -3,7 +3,7 @@
     <ProductCard
       v-for="(product, index) in products"
       :key="index"
-      :name="product.variant_price"
+      :name="product.product_name"
       :category="product.product_categories"
       :image="product.main_variant_image"
       :slug="product.product_handle"

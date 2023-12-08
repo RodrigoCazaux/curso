@@ -22,14 +22,14 @@
             scope="row"
             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
           >
-            {{ product.name }}
+            {{ product.product_name }}
           </th>
-          <td class="px-6 py-4">{{ product.category }}</td>
-          <td class="px-6 py-4">${{ product.price }}</td>
-          <td class="px-6 py-4">{{ product.description }}</td>
+          <td class="px-6 py-4">{{ product.product_categories }}</td>
+          <td class="px-6 py-4">${{ product.variant_price }}</td>
+          <td class="px-6 py-4">{{ product.product_description }}</td>
           <td class="px-6 py-4 flex items-center space-x-2">
             <nuxt-link
-              :to="'admin/' + product.id"
+              :to="'admin/' + product.product_handle"
               class="font-medium text-secondary hover:underline"
               ><EditIcon class="w-5 h-5"/></nuxt-link
             >
@@ -65,7 +65,7 @@ export default {
   methods: {
     getDocuments() {
       this.products = [];
-      const response = db.collection("products").get();
+      const response = db.collection("Vinos").get();
       response
         .then((snapshot) => {
           snapshot.forEach((doc) => {
@@ -81,7 +81,7 @@ export default {
         });
     },
     deleteDocument(id) {
-      const ref = db.collection("products").doc(id);
+      const ref = db.collection("Vinos").doc(id);
       ref.delete();
       this.getDocuments();
     },

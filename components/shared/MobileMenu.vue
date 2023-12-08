@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-secondary h-screen w-8/12 fixed top-0 left-0 z-50 px-10 py-6">
-    <nuxt-link to="/" class="-m-1.5 p-1.5 mb-16">
+  <div class="bg-secondary flex flex-col h-screen w-8/12 fixed top-0 left-0 z-50 px-10 py-6">
+    <nuxt-link to="/" class="-m-1.5 p-1.5">
       <img
-        class="h-14 w-auto"
+        class="h-12 w-auto mb-10"
         src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/inquietoIcon.png?alt=media&token=b4b3047b-c061-4937-be49-13203f662918"
         alt=""
       />
