@@ -27,7 +27,7 @@
           <td class="px-6 py-4">{{ product.product_description }}</td>
           <td class="px-6 py-4 flex items-center space-x-2">
             <nuxt-link
-              :to="'admin/' + product.product_handle"
+              :to="product.product_handle"
               class="font-medium text-secondary hover:underline"
               ><EditIcon class="w-5 h-5"
             /></nuxt-link>
