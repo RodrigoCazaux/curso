@@ -54,11 +54,11 @@
           class="font-semibold leading-6 text-primary text-opacity-60"
           >Nosotros</nuxt-link
         >
-        <nuxt-link
+        <!-- <nuxt-link
           to="/contacto"
           class="font-semibold leading-6 text-primary text-opacity-60"
           >Contacto</nuxt-link
-        >
+        > -->
       </div>
       <div class="hidden lg:flex lg:flex-1 lg:justify-end">
         <button

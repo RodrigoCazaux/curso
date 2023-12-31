@@ -3,7 +3,7 @@
     class="bg-white md:min-h-screen hero-bg -mx-10 md:-mx-32 -my-16 text-center md:text-left"
   >
     <main>
-      <div class="relative px-6 lg:px-32 pt-16">
+      <div class="relative px-6 lg:px-32 2xl:px-52 pt-16">
         <div class="max-w-xl py-32">
           <span class="text-xs tracking-widest text-primary uppercase"
             >Santiago Cazaux</span
