@@ -1,7 +1,10 @@
 <template>
-  <div v-if="product">
-    <img :src="product.main_variant_image" />
-    <form>
+  <div class="flex space-x-5" v-if="product">
+    <div class="w-1/2">
+      <img :src="product.main_variant_image" />
+    </div>
+
+    <form class="w-1/2">
       <div class="relative z-0 w-full mb-6 group">
         <input
           type="text"
@@ -41,6 +44,19 @@
           <label
             class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
             >Category</label
+          >
+        </div>
+        <div class="relative z-0 w-full mb-6 group">
+          <input
+            type="text"
+            v-model="product.product_bodega"
+            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+            required
+          />
+          <label
+            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >Bodega</label
           >
         </div>
       </div>
@@ -93,7 +109,7 @@
         @click.prevent="onUpdate"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
-        Actualizar
+      {{ isLoading ? 'Cargando...' : 'Actualizar' }}
       </button>
     </form>
   </div>
@@ -102,64 +118,102 @@
 <script>
 import { db, firebase } from "@/plugins/firebase";
 import "firebase/storage";
+
 export default {
   middleware: "auth",
   layout: "admin",
   data() {
     return {
-      product: null,
+      product: {
+        product_name: "",
+        product_handle: "",
+        product_categories: "",
+        product_bodega: "",
+        variant_price: "",
+        product_description: "",
+      },
+      isLoading: false,
     };
   },
-  created() {
-    const productHandle = this.$route.params.id; // Obtén el product_handle de la ruta
-    console.log(productHandle);
-    db.collection("Vinos")
-      .where("product_handle", "==", productHandle)
-      .get()
-      .then((querySnapshot) => {
-        if (!querySnapshot.empty) {
-          // Verifica si la consulta no está vacía
-          const doc = querySnapshot.docs[0]; // Obtén el primer documento de la lista
-          this.product = doc.data(); // Asigna los datos del documento a la variable product
-          console.log(this.product);
-        } else {
-          // Maneja el caso en que no se encontró ningún producto con el product_handle especificado
-          console.log("No se encontró ningún producto con ese product_handle.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error al obtener el producto:", error);
-      });
+  mounted() {
+    this.loadProduct();
   },
   methods: {
-    onFileChange(event) {
-      this.product.main_variant_image = event.target.files[0];
+    async loadProduct() {
+      try {
+        const productHandle = this.$route.params.id;
+        const productQuery = await db
+          .collection("Vinos")
+          .where("product_handle", "==", productHandle)
+          .get();
+
+        if (productQuery.empty) {
+          console.error("Producto no encontrado");
+          return;
+        }
+
+        const productData = productQuery.docs[0].data();
+        this.product = {
+          main_variant_image: productData.main_variant_image,
+          product_name: productData.product_name,
+          product_handle: productData.product_handle,
+          product_categories: productData.product_categories,
+          product_bodega: productData.product_bodega,
+          variant_price: productData.variant_price,
+          product_description: productData.product_description,
+        };
+      } catch (error) {
+        console.error("Error al cargar el producto:", error);
+      }
     },
     async onUpdate() {
-      const ref = db.collection("Vinos").doc(this.$route.params.id);
+      try {
+        this.isLoading = true;
+        const productQuery = await db
+          .collection("Vinos")
+          .where("product_handle", "==", this.product.product_handle)
+          .get();
 
-      // Verifica si hay una nueva imagen para cargar
-      if (this.product.main_variant_image) {
-        const storageRef = firebase.storage().ref();
-        const imageRef = storageRef.child(
-          `products/${this.product.product_name}/${this.product.main_variant_image.name}`
-        );
-        const snapshot = await imageRef.put(this.product.main_variant_image);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        this.product.main_variant_image = downloadURL;
+        if (productQuery.empty) {
+          console.error("Producto no encontrado");
+          return;
+        }
+
+        const productId = productQuery.docs[0].id;
+        const productRef = db.collection("Vinos").doc(productId);
+
+        await productRef.update({
+          product_name: this.product.product_name,
+          product_handle: this.product.product_handle,
+          product_categories: this.product.product_categories,
+          product_bodega: this.product.product_bodega,
+          variant_price: this.product.variant_price,
+          product_description: this.product.product_description,
+        });
+
+        console.log("Producto actualizado correctamente");
+      } catch (error) {
+        console.error("Error al actualizar el producto:", error);
+      } finally {
+        this.isLoading = false;
+        alert("Producto actualizado correctamente");
       }
+    },
+    onFileChange(event) {
+      const file = event.target.files[0];
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(file.name);
 
-      const response = ref.update(this.product);
-      response
+      fileRef
+        .put(file)
         .then(() => {
-          this.$router.back();
+          console.log("Archivo subido correctamente");
+          // Aquí puedes obtener la URL del archivo subido y guardarla en tu objeto product si es necesario
         })
         .catch((error) => {
-          console.log(error);
+          console.error("Error al subir el archivo:", error);
         });
     },
   },
 };
 </script>
-
-<style></style>

@@ -31,11 +31,11 @@
               class="font-medium text-secondary hover:underline"
               ><EditIcon class="w-5 h-5"
             /></nuxt-link>
-            <!-- <span
+            <span
               @click="deleteDocument(product.id)"
               class="font-medium text-primary hover:underline"
               ><TrashIcon class="w-5 h-5"
-            /></span> -->
+            /></span>
           </td>
         </tr>
       </tbody>

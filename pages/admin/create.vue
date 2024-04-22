@@ -29,6 +29,19 @@
             >Category</label
           >
         </div>
+        <div class="relative z-0 w-full mb-6 group">
+          <input
+            type="text"
+            v-model="product.product_bodega"
+            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+            required
+          />
+          <label
+            class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >Bodega</label
+          >
+        </div>
       </div>
       <div class="grid md:grid-cols-2 md:gap-6">
         <div class="relative z-0 w-full mb-6 group">
@@ -99,6 +112,7 @@ export default {
         product_handle: " ",
         variant_price: null,
         product_categories: null,
+        product_bodega: null,
       },
     };
   },
@@ -121,11 +135,11 @@ export default {
       //this.product.id = timestamp - random;
       const storageRef = firebase.storage().ref();
       const imageRef = storageRef.child(
-        `products/${this.product.name}/${this.product. main_variant_image.name}`
+        `products/${this.product.name}/${this.product.main_variant_image.name}`
       );
-      const snapshot = await imageRef.put(this.product. main_variant_image);
+      const snapshot = await imageRef.put(this.product.main_variant_image);
       const downloadURL = await snapshot.ref.getDownloadURL();
-      this.product. main_variant_image = downloadURL;
+      this.product.main_variant_image = downloadURL;
 
       const response = db.collection("Vinos").add(this.product);
       response.then(() => {

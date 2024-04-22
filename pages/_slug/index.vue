@@ -80,10 +80,10 @@
             <div class="mt-4">
               <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
                 <li class="text-gray-400">
-                  <span class="text-gray-600">MARTIN VIGGIANO</span>
+                  <span class="text-gray-600">{{ product.product_bodega ? product.product_bodega : '-' }}</span>
                 </li>
 
-                <li class="text-gray-400">
+                <!-- <li class="text-gray-400">
                   <span class="text-gray-600">2021</span>
                 </li>
 
@@ -93,7 +93,7 @@
 
                 <li class="text-gray-400">
                   <span class="text-gray-600">750CC</span>
-                </li>
+                </li> -->
               </ul>
             </div>
           </div>
