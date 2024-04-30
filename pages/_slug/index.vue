@@ -55,11 +55,11 @@
 
       <!-- Product info -->
       <div class="grid grid-cols-12 mx-auto pt-8">
-        <div class="col-span-12 md:col-span-6 pb-8 mt-4 mr-8">
+        <div class="col-span-12 md:col-span-6 pb-8 max-h-80 mt-4 mr-8">
           <img
             :src="product.main_variant_image"
             alt="Model wearing plain white basic tee."
-            class="h-full w-full object-cover object-center"
+            class="h-full w-full object-contain object-center"
           />
         </div>
 
@@ -77,16 +77,16 @@
           <PrimaryButton @click="addToCart" text="Agregar al carrito" />
           <div class="mt-10">
             <h3 class="text-sm font-medium text-gray-900">Detalles</h3>
-            <div class="mt-4">
+            <div class="mt-6">
               <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
                 <li class="text-gray-400">
                   <span class="text-gray-600">{{ product.product_bodega ? product.product_bodega : '-' }}</span>
                 </li>
 
-                <!-- <li class="text-gray-400">
-                  <span class="text-gray-600">2021</span>
+              <li class="text-gray-400">
+                  <span class="text-gray-600">{{product.product_year ? product.product_year : '-'}}</span>
                 </li>
-
+  <!-- 
                 <li class="text-gray-400">
                   <span class="text-gray-600">URUGUAY</span>
                 </li>

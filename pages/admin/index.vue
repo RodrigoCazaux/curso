@@ -80,6 +80,14 @@ export default {
     },
     // Dentro de tu método deleteDocument
     deleteDocument(id) {
+      // Confirmación antes de eliminar
+      const confirmDelete = window.confirm(
+        "¿Estás seguro de que quieres eliminar este documento?"
+      );
+      if (!confirmDelete) {
+        return; // No se hace nada si el usuario cancela
+      }
+
       const ref = db.collection("Vinos").doc(id);
 
       // Obtener el documento para acceder a la referencia de la imagen
