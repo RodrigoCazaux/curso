@@ -2,6 +2,7 @@
   <div class="grid grid-cols-12 gap-x-0 md:gap-x-8 gap-y-10 py-10">
     <ProductCard
       v-for="(product, index) in products"
+      v-if="product.stock"
       :key="index"
       :name="product.product_name"
       :category="product.product_categories"

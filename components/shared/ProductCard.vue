@@ -7,7 +7,7 @@
       class="min-h-80 relative aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80"
     >
       <img
-        :src="image"
+        :src="image[0]"
         alt="product image"
         class="h-full w-full object-cover object-center lg:h-full lg:w-full"
       />
@@ -34,7 +34,7 @@ export default {
     category: { type: String, default: "shirt" },
     price: { type: String, default: "35" },
     slug: { type: String, default: "product-name" },
-    image: { type: String, default: "" },
+    image: { type: Array, default: "" },
   },
 };
 </script>
