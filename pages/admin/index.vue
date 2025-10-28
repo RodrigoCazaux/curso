@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div class="relative w-full md:max-w-sm">
         <input
           v-model.trim="searchTerm"
@@ -45,17 +45,54 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 7.5 15a7.5 7.5 0 0 0 9.15 1.65Z" />
         </svg>
       </div>
-      <div class="flex items-center gap-3">
-        <label for="stock-filter" class="text-xs font-medium uppercase text-gray-500">Estado</label>
-        <select
-          id="stock-filter"
-          v-model="stockFilter"
-          class="rounded-md border border-gray-200 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
-        >
-          <option value="all">Todos</option>
-          <option value="in">En stock</option>
-          <option value="out">Sin stock</option>
-        </select>
+      <div class="flex flex-wrap items-center gap-3 md:justify-end">
+        <div class="flex items-center gap-2">
+          <label for="stock-filter" class="text-xs font-medium uppercase text-gray-500">Estado</label>
+          <select
+            id="stock-filter"
+            v-model="stockFilter"
+            class="rounded-md border border-gray-200 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+          >
+            <option value="all">Todos</option>
+            <option value="in">En stock</option>
+            <option value="out">Sin stock</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="category-filter" class="text-xs font-medium uppercase text-gray-500">Categoría</label>
+          <select
+            id="category-filter"
+            v-model="categoryFilter"
+            class="rounded-md border border-gray-200 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+          >
+            <option value="">Todas</option>
+            <option
+              v-for="category in categoryOptions"
+              :key="`category-${category}`"
+              :value="category"
+              class="uppercase"
+            >
+              {{ category }}
+            </option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="bodega-filter" class="text-xs font-medium uppercase text-gray-500">Bodega</label>
+          <select
+            id="bodega-filter"
+            v-model="bodegaFilter"
+            class="rounded-md border border-gray-200 bg-white py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+          >
+            <option value="">Todas</option>
+            <option
+              v-for="bodega in bodegaOptions"
+              :key="`bodega-${bodega}`"
+              :value="bodega"
+            >
+              {{ bodega }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -63,8 +100,9 @@
       <table class="w-full text-sm text-left text-gray-600">
         <thead class="text-xs uppercase bg-secondary text-white">
           <tr>
-            <th scope="col" class="px-6 py-3">Nombre de producto</th>
+            <th scope="col" class="px-6 py-3 w-1/4">Nombre de producto</th>
             <th scope="col" class="px-6 py-3">Categoría</th>
+            <th scope="col" class="px-6 py-3">Bodega</th>
             <th scope="col" class="px-6 py-3">Precio</th>
             <th scope="col" class="px-6 py-3">Estado</th>
             <th scope="col" class="px-6 py-3 text-right">Acciones</th>
@@ -76,11 +114,16 @@
             :key="product.id"
             class="border-b last:border-b-0 hover:bg-gray-50 transition"
           >
-            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-              {{ product.product_name }}
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900">
+              <span class="block max-w-[180px] truncate">
+                {{ product.product_name || '—' }}
+              </span>
             </th>
             <td class="px-6 py-4 uppercase tracking-wide text-xs text-gray-500">
               {{ product.product_categories || '—' }}
+            </td>
+            <td class="px-6 py-4 text-xs font-medium text-gray-900">
+              {{ product.product_bodega || '—' }}
             </td>
             <td class="px-6 py-4 font-medium text-gray-900">${{ product.variant_price }}</td>
             <td class="px-6 py-4">
@@ -135,6 +178,8 @@ export default {
     return {
       searchTerm: "",
       stockFilter: "all",
+      categoryFilter: "",
+      bodegaFilter: "",
       isLoading: false,
       deletingProductId: null,
       feedback: {
@@ -145,10 +190,10 @@ export default {
     };
   },
   computed: {
-    ...mapState(['filteredProducts']),
+    ...mapState(['filteredProducts', 'categories', 'bodegas']),
 
     productStats() {
-      const items = Array.isArray(this.filteredProducts) ? this.filteredProducts : [];
+      const items = this.displayProducts;
       const total = items.length;
       const inStock = items.filter((item) => item.stock).length;
       return {
@@ -156,6 +201,28 @@ export default {
         inStock,
         outOfStock: total - inStock,
       };
+    },
+
+    categoryOptions() {
+      const categories = Array.isArray(this.categories) ? this.categories : [];
+      return Array.from(
+        new Set(
+          categories
+            .map((category) => category?.name?.trim())
+            .filter(Boolean)
+        )
+      ).sort((a, b) => a.localeCompare(b));
+    },
+
+    bodegaOptions() {
+      const bodegas = Array.isArray(this.bodegas) ? this.bodegas : [];
+      return Array.from(
+        new Set(
+          bodegas
+            .map((bodega) => bodega?.name?.trim())
+            .filter(Boolean)
+        )
+      ).sort((a, b) => a.localeCompare(b));
     },
 
     displayProducts() {
@@ -176,7 +243,21 @@ export default {
             ? Boolean(item.stock)
             : !item.stock;
 
-        return matchesSearch && matchesStock;
+        const itemCategory = item.product_categories
+          ? item.product_categories.toString().trim()
+          : "";
+        const matchesCategory = this.categoryFilter
+          ? itemCategory === this.categoryFilter
+          : true;
+
+        const itemBodega = item.product_bodega
+          ? item.product_bodega.toString().trim()
+          : "";
+        const matchesBodega = this.bodegaFilter
+          ? itemBodega === this.bodegaFilter
+          : true;
+
+        return matchesSearch && matchesStock && matchesCategory && matchesBodega;
       });
     },
   },
@@ -189,15 +270,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchProducts', 'deleteProduct']),
+    ...mapActions(['fetchProducts', 'deleteProduct', 'fetchCategories', 'fetchBodegas']),
 
     async loadProducts() {
       try {
         this.isLoading = true;
-        await this.fetchProducts();
+        await Promise.all([this.fetchProducts(), this.fetchCategories(), this.fetchBodegas()]);
       } catch (error) {
-        console.error("Error al cargar productos:", error);
-        this.showFeedback("error", "No se pudieron cargar los productos. Intenta nuevamente.");
+        console.error("Error al cargar datos de inventario:", error);
+        this.showFeedback("error", "No se pudieron cargar los datos. Intenta nuevamente.");
       } finally {
         this.isLoading = false;
       }

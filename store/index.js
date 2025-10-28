@@ -189,6 +189,64 @@ const createStore = () => {
           console.error("Error fetching bodegas:", error);
         }
       },
+      async addBodega({ dispatch }, bodega) {
+        try {
+          const payload = {
+            name: bodega.name?.trim() || "",
+            description: bodega.description?.trim() || "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+
+          if (!payload.name) {
+            throw new Error("El nombre de la bodega es obligatorio");
+          }
+
+          const docRef = await db.collection("bodegas").add(payload);
+          await db.collection("bodegas").doc(docRef.id).update({ id: docRef.id });
+          await dispatch("fetchBodegas");
+          return docRef.id;
+        } catch (error) {
+          console.error("Error al crear la bodega:", error);
+          throw error;
+        }
+      },
+      async updateBodega({ dispatch }, bodega) {
+        try {
+          if (!bodega?.id) {
+            throw new Error("Bodega sin identificador");
+          }
+
+          const payload = {
+            name: bodega.name?.trim() || "",
+            description: bodega.description?.trim() || "",
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+
+          if (!payload.name) {
+            throw new Error("El nombre de la bodega es obligatorio");
+          }
+
+          await db.collection("bodegas").doc(bodega.id).update(payload);
+          await dispatch("fetchBodegas");
+        } catch (error) {
+          console.error("Error al actualizar la bodega:", error);
+          throw error;
+        }
+      },
+      async deleteBodega({ dispatch }, bodegaId) {
+        try {
+          if (!bodegaId) {
+            throw new Error("Identificador de bodega requerido");
+          }
+
+          await db.collection("bodegas").doc(bodegaId).delete();
+          await dispatch("fetchBodegas");
+        } catch (error) {
+          console.error("Error al eliminar la bodega:", error);
+          throw error;
+        }
+      },
       async fetchProductBySlug({ commit }, slug) {
         try {
           const ref = db

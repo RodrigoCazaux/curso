@@ -59,6 +59,13 @@
             Categorías
           </nuxt-link>
           <nuxt-link
+            to="/admin/bodegas"
+            class="flex items-center gap-x-1 font-semibold leading-6 text-gray-500 hover:text-gray-900 transition"
+            exact-active-class="text-secondary"
+          >
+            Bodegas
+          </nuxt-link>
+          <nuxt-link
             to="/admin/create"
             class="font-semibold leading-6 text-gray-500 hover:text-gray-900 transition"
             exact-active-class="text-secondary"
@@ -130,6 +137,12 @@
                   class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition"
                   exact-active-class="text-secondary"
                   >Categorías</nuxt-link
+                >
+                <nuxt-link
+                  to="/admin/bodegas"
+                  class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition"
+                  exact-active-class="text-secondary"
+                  >Bodegas</nuxt-link
                 >
                 <nuxt-link
                   to="/admin/create"
