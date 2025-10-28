@@ -119,6 +119,64 @@ const createStore = () => {
           console.error("Error fetching categories:", error);
         }
       },
+      async addCategory({ dispatch }, category) {
+        try {
+          const payload = {
+            name: category.name?.trim() || "",
+            description: category.description?.trim() || "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+
+          if (!payload.name) {
+            throw new Error("El nombre de la categoría es obligatorio");
+          }
+
+          const docRef = await db.collection("categories").add(payload);
+          await db.collection("categories").doc(docRef.id).update({ id: docRef.id });
+          await dispatch("fetchCategories");
+          return docRef.id;
+        } catch (error) {
+          console.error("Error al crear la categoría:", error);
+          throw error;
+        }
+      },
+      async updateCategory({ dispatch }, category) {
+        try {
+          if (!category?.id) {
+            throw new Error("Categoría sin identificador");
+          }
+
+          const payload = {
+            name: category.name?.trim() || "",
+            description: category.description?.trim() || "",
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+
+          if (!payload.name) {
+            throw new Error("El nombre de la categoría es obligatorio");
+          }
+
+          await db.collection("categories").doc(category.id).update(payload);
+          await dispatch("fetchCategories");
+        } catch (error) {
+          console.error("Error al actualizar la categoría:", error);
+          throw error;
+        }
+      },
+      async deleteCategory({ dispatch }, categoryId) {
+        try {
+          if (!categoryId) {
+            throw new Error("Identificador de categoría requerido");
+          }
+
+          await db.collection("categories").doc(categoryId).delete();
+          await dispatch("fetchCategories");
+        } catch (error) {
+          console.error("Error al eliminar la categoría:", error);
+          throw error;
+        }
+      },
       async fetchBodegas({ commit }) {
         try {
           const response = await db.collection("bodegas").get();
@@ -133,13 +191,25 @@ const createStore = () => {
       },
       async fetchProductBySlug({ commit }, slug) {
         try {
-          const ref = db.collection("Vinos").where("product_handle", "==", slug);
+          const ref = db
+            .collection("Vinos")
+            .where("product_handle", "==", slug)
+            .limit(1);
           const snapshot = await ref.get();
-          const product = snapshot.docs.shift().data();
+
+          if (snapshot.empty) {
+            commit("setProduct", {});
+            return null;
+          }
+
+          const doc = snapshot.docs[0];
+          const product = { id: doc.id, ...doc.data() };
           commit("setProduct", product);
+          return product;
         } catch (error) {
           console.error("Error fetching product:", error);
           commit("setProduct", {});
+          throw error;
         }
       },
       async filterProducts({ commit }, category) {
@@ -164,33 +234,35 @@ const createStore = () => {
       },
       async updateProduct({ commit }, product) {
         try {
-          const productQuery = await db
-            .collection("Vinos")
-            .where("product_handle", "==", product.product_handle)
-            .get();
-
-          if (productQuery.empty) {
-            throw new Error("Producto no encontrado");
+          if (!product?.id) {
+            throw new Error("Producto sin identificador");
           }
 
-          const productId = productQuery.docs[0].id;
-          const productRef = db.collection("Vinos").doc(productId);
+          const productRef = db.collection("Vinos").doc(product.id);
 
-          // Asegúrate de incluir todas las propiedades que quieres actualizar, incluyendo 'images'
-          await productRef.update({
-            product_name: product.product_name,
-            product_handle: product.product_handle,
-            product_categories: product.product_categories,
-            variant_price: product.variant_price,
-            product_description: product.product_description,
-            main_variant_image: product.main_variant_image, // Agregar el array de imágenes actualizado
-            product_bodega: product.product_bodega,
-            product_cantidad: product.product_cantidad,
-            product_year: product.product_year,
-            stock: product.stock
-          });
+          const payload = {
+            product_name: product.product_name ?? "",
+            product_handle: product.product_handle ?? "",
+            product_categories: product.product_categories ?? "",
+            variant_price: product.variant_price ?? "",
+            product_description: product.product_description ?? "",
+            main_variant_image: Array.isArray(product.main_variant_image)
+              ? product.main_variant_image
+              : [],
+            product_bodega: product.product_bodega ?? "",
+            product_cantidad:
+              product.product_cantidad !== undefined
+                ? product.product_cantidad
+                : null,
+            product_year:
+              product.product_year !== undefined ? product.product_year : null,
+            stock:
+              typeof product.stock === "boolean"
+                ? product.stock
+                : Boolean(product.stock),
+          };
 
-          console.log("Producto actualizado correctamente");
+          await productRef.update(payload);
 
           // Opcional: Vuelve a obtener los productos y actualiza el estado del store
           const response = await db.collection("Vinos").get();

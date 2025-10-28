@@ -31,9 +31,9 @@
         </label>
       </div> -->
       <div class="relative z-0 w-full mb-6 group">
-        <input type="text" v-model="product.product_handle"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          required />
+        <input type="text" :value="product.product_handle" readonly placeholder=" "
+          class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 peer cursor-not-allowed"
+          aria-readonly="true" />
         <label for="floating_email"
           class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Handle</label>
       </div>
@@ -174,14 +174,23 @@ export default {
     async loadProduct() {
       try {
         const productHandle = this.$route.params.id;
-        const productQuery = await this.$store.dispatch('fetchProductBySlug', productHandle);
+        const fetchedProduct = await this.$store.dispatch(
+          "fetchProductBySlug",
+          productHandle
+        );
 
-        if (!this.product) {
+        if (!fetchedProduct) {
           console.error("Producto no encontrado");
           return;
         }
 
-        this.product = this.$store.state.product;
+        this.product = {
+          ...this.product,
+          ...fetchedProduct,
+          main_variant_image: Array.isArray(fetchedProduct.main_variant_image)
+            ? fetchedProduct.main_variant_image
+            : [],
+        };
       } catch (error) {
         console.error("Error al cargar el producto:", error);
       }
@@ -212,14 +221,14 @@ export default {
         }
 
         // Actualizar el producto con las nuevas imágenes
-        const updatedImages = [...this.product.main_variant_image, ...newImageUrls];
+        const updatedImages = [
+          ...this.product.main_variant_image,
+          ...newImageUrls,
+        ];
+        this.product.main_variant_image = updatedImages;
         await this.$store.dispatch("updateProduct", {
           ...this.product,
-          images: updatedImages,
         });
-
-        // Actualizar el estado local
-        this.product.main_variant_image = updatedImages;
         alert("Imágenes agregadas correctamente.");
       } catch (error) {
         console.error("Error al agregar imágenes:", error);
