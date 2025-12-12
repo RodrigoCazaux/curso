@@ -11,58 +11,131 @@
       </p>
     </section>
     <section class="-mt-20">
-      <Categories @category-selected="filterProducts" />
+      <CatalogFilters
+        :categories="categories"
+        :bodegas="bodegas"
+        @filters-change="applyFilters"
+      />
       <Catalog :products="filteredProducts" />
     </section>
   </div>
 </template>
 
 <script>
-import Categories from "~/components/catalog/Categories.vue";
+import CatalogFilters from "~/components/catalog/Categories.vue";
 import Catalog from "~/components/home/Catalog.vue";
 import { db } from "@/plugins/firebase";
 export default {
   components: {
     Catalog,
-    Categories,
+    CatalogFilters,
   },
   data() {
     return {
       products: [],
       filteredProducts: [],
+      categories: [],
+      bodegas: [],
+      filters: {
+        search: "",
+        category: "",
+        bodega: "",
+      },
     };
   },
-  created() {
-    // Carga todos los productos al inicio
-    const response = db.collection("Vinos").get();
-    response
-      .then((snapshot) => {
-        snapshot.forEach((doc) => {
-          const product = {
-            id: doc.id,
-            ...doc.data(),
-          };
-          this.products.push(product);
-        });
-        // Al cargar los productos, también los filtramos inicialmente mostrando todos
-        this.filteredProducts = this.products;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  async created() {
+    try {
+      const snapshot = await db.collection("Vinos").get();
+
+      this.products = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      this.buildFilterOptions();
+      this.applyFilters();
+    } catch (error) {
+      console.log(error);
+    }
   },
 
   methods: {
-    filterProducts(category) {
-      if (category === "") {
-        // Si se selecciona la categoría 'Todos', mostramos todos los productos
-        this.filteredProducts = this.products;
-      } else {
-        // Filtramos los productos según la categoría seleccionada
-        this.filteredProducts = this.products.filter((product) =>
-          product.product_categories.includes(category)
-        );
-      }
+    buildFilterOptions() {
+      const categorySet = new Set();
+      const bodegaSet = new Set();
+
+      this.products.forEach((product) => {
+        const categories = Array.isArray(product.product_categories)
+          ? product.product_categories
+          : [product.product_categories];
+
+        categories
+          .filter(Boolean)
+          .forEach((category) => {
+            const normalized = typeof category === "string" ? category.trim() : category;
+            if (normalized) {
+              categorySet.add(normalized);
+            }
+          });
+
+        if (product.product_bodega) {
+          const normalizedBodega =
+            typeof product.product_bodega === "string"
+              ? product.product_bodega.trim()
+              : product.product_bodega;
+
+          if (normalizedBodega) {
+            bodegaSet.add(normalizedBodega);
+          }
+        }
+      });
+
+      this.categories = Array.from(categorySet);
+      this.bodegas = Array.from(bodegaSet);
+    },
+    applyFilters(newFilters = {}) {
+      this.filters = { ...this.filters, ...newFilters };
+
+      const searchTerm = (this.filters.search || "").toLowerCase();
+      const selectedCategoryValue = this.filters.category
+        ? this.filters.category.toString().toLowerCase()
+        : "";
+      const selectedBodegaValue = this.filters.bodega
+        ? this.filters.bodega.toString().toLowerCase()
+        : "";
+
+      this.filteredProducts = this.products.filter((product) => {
+        const productName = (product.product_name || "").toLowerCase();
+        const productDescription = (product.product_description || "").toLowerCase();
+        const productBodega = (product.product_bodega || "").toLowerCase();
+
+        const categories = Array.isArray(product.product_categories)
+          ? product.product_categories
+          : [product.product_categories];
+
+        const matchesCategory =
+          !selectedCategoryValue ||
+          categories
+            .filter(Boolean)
+            .some(
+              (category) =>
+                category &&
+                category.toString().toLowerCase() === selectedCategoryValue
+            );
+
+        const matchesBodega =
+          !selectedBodegaValue || productBodega === selectedBodegaValue;
+
+        const matchesSearch =
+          !searchTerm ||
+          productName.includes(searchTerm) ||
+          productDescription.includes(searchTerm) ||
+          productBodega.includes(searchTerm);
+
+        const matchesStock = product.stock === undefined ? true : product.stock;
+
+        return matchesCategory && matchesBodega && matchesSearch && matchesStock;
+      });
     },
   },
 };
