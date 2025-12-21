@@ -25,6 +25,8 @@ const actions = {
           ? productPayload.stock
           : Boolean(productPayload?.stock),
       main_variant_image: [],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
     const productId = docRef.id;
 

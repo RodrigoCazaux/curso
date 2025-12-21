@@ -2,6 +2,13 @@ import Vuex from "vuex";
 import { db, firebase } from "@/plugins/firebase";
 import "firebase/storage";
 const createStore = () => {
+  const sortByCreatedAtDesc = (items = []) =>
+    [...items].sort((a, b) => {
+      const aTime = a?.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+      const bTime = b?.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return bTime - aTime;
+    });
+
   return new Vuex.Store({
     state: {
       products: [],
@@ -97,10 +104,12 @@ const createStore = () => {
       async fetchProducts({ commit }) {
         try {
           const response = await db.collection("Vinos").get();
-          const products = response.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const products = sortByCreatedAtDesc(
+            response.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+          );
           commit("setProducts", products);
           commit("setFilteredProducts", products);
         } catch (error) {
@@ -307,7 +316,7 @@ const createStore = () => {
             ...doc.data()
           }));
 
-          commit("setFilteredProducts", filteredProducts);
+          commit("setFilteredProducts", sortByCreatedAtDesc(filteredProducts));
         } catch (error) {
           console.error("Error filtering products:", error);
         }
@@ -340,6 +349,7 @@ const createStore = () => {
               typeof product.stock === "boolean"
                 ? product.stock
                 : Boolean(product.stock),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           };
 
           await productRef.update(payload);
@@ -421,6 +431,8 @@ const createStore = () => {
                 ? productPayload.stock
                 : Boolean(productPayload?.stock),
             main_variant_image: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
           const productId = docRef.id;
 
@@ -438,10 +450,12 @@ const createStore = () => {
 
           // Refrescar productos después de agregar uno nuevo
           const response = await db.collection("Vinos").get();
-          const products = response.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const products = sortByCreatedAtDesc(
+            response.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+          );
           commit("setProducts", products);
         } catch (error) {
           console.error("Error adding product:", error);
