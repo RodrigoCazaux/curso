@@ -45,6 +45,7 @@ export default {
   },
   async created() {
     try {
+      // Obtenemos todos los productos y ordenamos localmente para no excluir los que no tienen createdAt
       const snapshot = await db.collection("Vinos").get();
 
       this.products = snapshot.docs.map((doc) => ({
@@ -104,10 +105,11 @@ export default {
         ? this.filters.bodega.toString().toLowerCase()
         : "";
 
-      this.filteredProducts = this.products.filter((product) => {
-        const productName = (product.product_name || "").toLowerCase();
-        const productDescription = (product.product_description || "").toLowerCase();
-        const productBodega = (product.product_bodega || "").toLowerCase();
+      this.filteredProducts = this.products
+        .filter((product) => {
+          const productName = (product.product_name || "").toLowerCase();
+          const productDescription = (product.product_description || "").toLowerCase();
+          const productBodega = (product.product_bodega || "").toLowerCase();
 
         const categories = Array.isArray(product.product_categories)
           ? product.product_categories
@@ -134,8 +136,13 @@ export default {
 
         const matchesStock = product.stock === undefined ? true : product.stock;
 
-        return matchesCategory && matchesBodega && matchesSearch && matchesStock;
-      });
+          return matchesCategory && matchesBodega && matchesSearch && matchesStock;
+        })
+        .sort((a, b) => {
+          const aTime = a?.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+          const bTime = b?.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+          return bTime - aTime;
+        });
     },
   },
 };
