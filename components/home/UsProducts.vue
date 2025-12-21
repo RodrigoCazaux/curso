@@ -6,7 +6,7 @@
       :name="product.product_name"
       :category="product.product_categories"
       :image="product.main_variant_image"
-      :slug="product.product_handle"
+      :slug="product.id"
       :price="product.variant_price"
     />
   </div>

@@ -1,6 +1,6 @@
 <template>
   <div
-    @click.stop="$router.push(slug)"
+    @click.stop="$router.push(targetPath)"
     class="group relative col-span-12 md:col-span-3 cursor-pointer"
   >
     <div
@@ -35,6 +35,12 @@ export default {
     price: { type: String, default: "35" },
     slug: { type: String, default: "product-name" },
     image: { type: Array, default: "" },
+  },
+  computed: {
+    targetPath() {
+      if (!this.slug) return "/";
+      return this.slug.startsWith("/") ? this.slug : `/${this.slug}`;
+    },
   },
 };
 </script>

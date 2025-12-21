@@ -136,7 +136,7 @@
             </td>
             <td class="px-6 py-4 flex items-center justify-end space-x-3">
               <nuxt-link
-                :to="`/admin/${product.product_handle}`"
+                :to="`/admin/${product.id}`"
                 class="inline-flex items-center space-x-1 text-secondary hover:opacity-80 text-sm font-medium"
               >
                 <EditIcon class="w-4 h-4" />
@@ -144,12 +144,12 @@
               </nuxt-link>
               <button
                 type="button"
-                @click="deleteDocument(product.id)"
+                @click="openDeleteModal(product)"
                 :disabled="deletingProductId === product.id"
                 class="inline-flex items-center space-x-1 text-rose-600 hover:text-rose-500 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <TrashIcon class="w-4 h-4" />
-                <span>Eliminar</span>
+                <span>{{ deletingProductId === product.id ? 'Eliminando…' : 'Eliminar' }}</span>
               </button>
             </td>
           </tr>
@@ -160,6 +160,53 @@
       </div>
       <div v-else-if="!displayProducts.length" class="p-8 text-center text-sm text-gray-500">
         No se encontraron productos. Crea uno nuevo para empezar a gestionar el catálogo.
+      </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div
+      v-if="isDeleteModalOpen"
+      class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 px-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="w-full max-w-md rounded-lg bg-white shadow-xl">
+        <div class="p-5 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Eliminar producto</h2>
+          <p class="mt-2 text-sm text-gray-600">
+            ¿Seguro que deseas eliminar
+            <span class="font-semibold text-gray-900">{{ productToDelete?.product_name || 'este producto' }}</span>?
+            Esta acción no se puede deshacer.
+          </p>
+        </div>
+        <div class="p-5 flex items-center justify-end space-x-3">
+          <button
+            type="button"
+            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            @click="closeDeleteModal"
+            :disabled="isDeleting"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-rose-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="confirmDelete"
+            :disabled="isDeleting"
+          >
+            <svg
+              v-if="isDeleting"
+              class="mr-2 h-4 w-4 animate-spin text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 000 16v4l3.5-3.5L12 20v4a8 8 0 01-8-8z"></path>
+            </svg>
+            {{ isDeleting ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -187,6 +234,9 @@ export default {
         message: "",
       },
       feedbackTimeout: null,
+      isDeleteModalOpen: false,
+      productToDelete: null,
+      isDeleting: false,
     };
   },
   computed: {
@@ -229,7 +279,7 @@ export default {
       const items = Array.isArray(this.filteredProducts) ? this.filteredProducts : [];
       return items.filter((item) => {
         const matchesSearch = this.searchTerm
-          ? [item.product_name, item.product_handle]
+          ? [item.product_name, item.product_handle, item.id]
               .filter(Boolean)
               .some((field) =>
                 field.toString().toLowerCase().includes(this.searchTerm.toLowerCase())
@@ -299,22 +349,32 @@ export default {
       this.feedbackTimeout = null;
     },
 
-    async deleteDocument(id) {
-      const confirmDelete = window.confirm(
-        "¿Estás seguro de que quieres eliminar este documento?"
-      );
-      if (!confirmDelete) {
-        return;
-      }
+    openDeleteModal(product) {
+      this.productToDelete = product;
+      this.isDeleteModalOpen = true;
+    },
+
+    closeDeleteModal() {
+      if (this.isDeleting) return;
+      this.isDeleteModalOpen = false;
+      this.productToDelete = null;
+    },
+
+    async confirmDelete() {
+      if (!this.productToDelete?.id) return;
       try {
+        const id = this.productToDelete.id;
         this.deletingProductId = id;
+        this.isDeleting = true;
         await this.deleteProduct(id); // Llama a la acción del store
         this.showFeedback("success", "Producto eliminado correctamente.");
       } catch (error) {
         console.error("Error al eliminar el producto:", error);
         this.showFeedback("error", "No se pudo eliminar el producto. Intenta nuevamente.");
       } finally {
+        this.isDeleting = false;
         this.deletingProductId = null;
+        this.closeDeleteModal();
       }
     },
   },

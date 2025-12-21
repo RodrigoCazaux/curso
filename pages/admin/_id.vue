@@ -1,14 +1,27 @@
 <template>
   <div class="flex flex-col lg:flex-row space-x-5" v-if="product">
     <div class="w-2/2 lg:w-1/2">
-      <div class="grid grid-cols-3 gap-4">
-        <div v-for="(image, index) in product.main_variant_image" :key="index" class="relative">
-          <img @click="selectImage(index)" :src="image" :class="[
-            'w-full h-auto border rounded-md cursor-pointer',
-            selectedImageIndex === index
-              ? 'border-blue-500 ring-2 ring-primary'
-              : 'border-gray-300'
-          ]" />
+      <div
+        :class="[
+          'grid gap-4',
+          product.main_variant_image.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
+        ]"
+      >
+        <div
+          v-for="(image, index) in product.main_variant_image"
+          :key="index"
+          class="relative w-full h-full"
+        >
+          <img
+            @click="selectImage(index)"
+            :src="image"
+            :class="[
+              'w-full object-cover border rounded-lg cursor-pointer transition',
+              selectedImageIndex === index
+                ? 'border-primary ring-2 ring-primary ring-opacity-60'
+                : 'border-gray-300'
+            ]"
+          />
         </div>
       </div>
     </div>
@@ -165,7 +178,7 @@ export default {
     ...mapState(["categories", "bodegas"]),
   },
   methods: {
-    ...mapActions(['updateProduct', 'uploadImage', "fetchCategories","fetchBodegas"]),
+    ...mapActions(['updateProduct', 'uploadImage', "fetchCategories","fetchBodegas", "fetchProductById"]),
 
     toggleStock() {
       this.product.stock = !this.product.stock;
@@ -173,11 +186,8 @@ export default {
 
     async loadProduct() {
       try {
-        const productHandle = this.$route.params.id;
-        const fetchedProduct = await this.$store.dispatch(
-          "fetchProductBySlug",
-          productHandle
-        );
+        const productId = this.$route.params.id;
+        const fetchedProduct = await this.fetchProductById(productId);
 
         if (!fetchedProduct) {
           console.error("Producto no encontrado");
@@ -215,7 +225,8 @@ export default {
         for (const file of files) {
           const imageUrl = await this.$store.dispatch("uploadImage", {
             file,
-            productName: this.product.product_name, // Usamos el nombre del producto para crear la ruta
+            productId: this.product.id,
+            productName: this.product.product_name, // Fallback para productos antiguos sin id
           });
           newImageUrls.push(imageUrl);
         }
@@ -272,11 +283,12 @@ export default {
         for (const change of this.imageChanges) {
           const { file, oldImageUrl, index } = change;
 
-          // Subir la nueva imagen y obtener su URL, usando el nombre del producto
+          // Subir la nueva imagen y obtener su URL (carpeta basada en ID)
           const newImageUrl = await this.$store.dispatch("uploadImage", {
             file,
             oldImageUrl,
-            productName: this.product.product_name, // Usamos el nombre del producto para crear la ruta
+            productId: this.product.id,
+            productName: this.product.product_name, // Fallback para productos antiguos sin id
           });
 
           // Actualizar la imagen localmente y sincronizar con Firestore

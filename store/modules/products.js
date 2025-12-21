@@ -17,12 +17,25 @@ const actions = {
     commit("SET_LOADING", true);
 
     const storageRef = firebase.storage().ref();
-    const imageRef = storageRef.child(`products/${productData.name}/${productData.main_variant_image.name}`);
-    const snapshot = await imageRef.put(productData.main_variant_image);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    productData.main_variant_image = downloadURL;
+    const { main_variant_image, ...productPayload } = productData || {};
+    const docRef = await db.collection("Vinos").add({
+      ...productPayload,
+      stock:
+        typeof productPayload?.stock === "boolean"
+          ? productPayload.stock
+          : Boolean(productPayload?.stock),
+      main_variant_image: [],
+    });
+    const productId = docRef.id;
 
-    await db.collection("Vinos").add(productData);
+    if (main_variant_image) {
+      const imageRef = storageRef.child(`products/${productId}/${main_variant_image.name}`);
+      const snapshot = await imageRef.put(main_variant_image);
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      await docRef.update({ id: productId, main_variant_image: [downloadURL] });
+    } else {
+      await docRef.update({ id: productId });
+    }
 
     commit("SET_LOADING", false);
     // Puedes devolver algún valor si es necesario

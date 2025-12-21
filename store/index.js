@@ -270,6 +270,28 @@ const createStore = () => {
           throw error;
         }
       },
+      async fetchProductById({ commit }, id) {
+        try {
+          if (!id) {
+            throw new Error("Identificador de producto requerido");
+          }
+
+          const doc = await db.collection("Vinos").doc(id).get();
+
+          if (!doc.exists) {
+            commit("setProduct", {});
+            return null;
+          }
+
+          const product = { id: doc.id, ...doc.data() };
+          commit("setProduct", product);
+          return product;
+        } catch (error) {
+          console.error("Error fetching product by id:", error);
+          commit("setProduct", {});
+          throw error;
+        }
+      },
       async filterProducts({ commit }, category) {
         try {
           let query = db.collection("Vinos");
@@ -335,12 +357,13 @@ const createStore = () => {
         }
       },
 
-      async uploadImage({ commit }, { file, oldImageUrl, productName }) {
+      async uploadImage({ commit }, { file, oldImageUrl, productId, productName }) {
         try {
           const storageRef = firebase.storage().ref();
 
-          // Ruta específica para la imagen del producto
-          const fileRef = storageRef.child(`products/${productName}/${file.name}`);
+          // Preferimos el ID del producto como nombre de carpeta; caemos al nombre si no existe
+          const folderName = productId || productName || "unknown-product";
+          const fileRef = storageRef.child(`products/${folderName}/${file.name}`);
 
           // Subir la nueva imagen
           const snapshot = await fileRef.put(file);
@@ -348,7 +371,7 @@ const createStore = () => {
 
           // Eliminar la imagen anterior si existe
           if (oldImageUrl) {
-            const oldFileRef = storageRef.storage.refFromURL(oldImageUrl);
+            const oldFileRef = firebase.storage().refFromURL(oldImageUrl);
             await oldFileRef.delete();
           }
 
@@ -385,25 +408,33 @@ const createStore = () => {
       async addProduct({ commit }, product) {
         try {
           const storageRef = firebase.storage().ref();
-          const imageUrls = [];
+          const imageFiles = Array.isArray(product?.main_variant_image)
+            ? product.main_variant_image
+            : [];
 
-          // Subir todas las imágenes seleccionadas
-          for (const image of product.main_variant_image) {
-            const imageRef = storageRef.child(`products/${product.product_name}/${image.name}`);
+          // Creamos el documento primero (sin imágenes) para obtener el ID y usarlo como carpeta
+          const { main_variant_image, ...productPayload } = product || {};
+          const docRef = await db.collection("Vinos").add({
+            ...productPayload,
+            stock:
+              typeof productPayload?.stock === "boolean"
+                ? productPayload.stock
+                : Boolean(productPayload?.stock),
+            main_variant_image: [],
+          });
+          const productId = docRef.id;
+
+          // Subir todas las imágenes seleccionadas usando el ID como carpeta
+          const imageUrls = [];
+          for (const image of imageFiles) {
+            const imageRef = storageRef.child(`products/${productId}/${image.name}`);
             const snapshot = await imageRef.put(image);
             const downloadURL = await snapshot.ref.getDownloadURL();
             imageUrls.push(downloadURL);
           }
 
-          // Agregar las URLs de las imágenes al producto
-          product.main_variant_image = imageUrls;
-
-          // Crear el documento en Firestore y obtener el ID
-          const docRef = await db.collection("Vinos").add(product);
-          const productId = docRef.id;
-
-          // Actualizar el producto en Firestore con su ID
-          await db.collection("Vinos").doc(productId).update({ id: productId });
+          // Guardar ID y URLs finales en el documento
+          await docRef.update({ id: productId, main_variant_image: imageUrls });
 
           // Refrescar productos después de agregar uno nuevo
           const response = await db.collection("Vinos").get();
@@ -427,16 +458,35 @@ const createStore = () => {
           }
 
           const data = doc.data();
-          const imageUrl = data.image;
+          const mainImages = Array.isArray(data.main_variant_image)
+            ? data.main_variant_image.filter(Boolean)
+            : data.main_variant_image
+            ? [data.main_variant_image]
+            : [];
+          const legacyImageUrl = data.image;
+
+          // Intentamos eliminar todas las imágenes asociadas (array y legacy)
+          const deleteTargets = [...mainImages, legacyImageUrl].filter(Boolean);
+          await Promise.allSettled(
+            deleteTargets.map(async (url) => {
+              const storageRef = firebase.storage().refFromURL(url);
+              await storageRef.delete();
+            })
+          );
+
+          // Limpia la carpeta basada en ID por si quedan archivos sueltos
+          try {
+            const folderRef = firebase.storage().ref().child(`products/${id}`);
+            const { items } = await folderRef.listAll();
+            if (items.length) {
+              await Promise.allSettled(items.map((itemRef) => itemRef.delete()));
+            }
+          } catch (cleanupError) {
+            console.warn("No se pudo limpiar la carpeta del producto:", cleanupError);
+          }
 
           await ref.delete();
           console.log("Documento eliminado correctamente");
-
-          if (imageUrl) {
-            const storageRef = firebase.storage().refFromURL(imageUrl);
-            await storageRef.delete();
-            console.log("Imagen eliminada de Firebase Storage.");
-          }
 
           // Refresca los productos después de eliminar uno
           await dispatch("fetchProducts");

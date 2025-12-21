@@ -178,7 +178,7 @@ import PrimaryButton from "~/components/shared/PrimaryButton.vue";
 
 export default {
   async fetch({ store, params }) {
-    await store.dispatch("fetchProductBySlug", params.slug);
+    await store.dispatch("fetchProductById", params.id);
   },
 
   data() {
