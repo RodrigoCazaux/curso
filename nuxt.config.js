@@ -2,6 +2,7 @@ const siteUrl = process.env.SITE_URL || "https://inquieto.com";
 
 export default {
   target: "static",
+  modern: "client",
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: "Inquieto | Experiencias de vino",
@@ -41,21 +42,18 @@ export default {
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.png" },
       { rel: "canonical", href: siteUrl },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: true },
       {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Karla:wght@300&display=swap',
+        rel: "preload",
+        as: "style",
+        href: "https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;700&display=swap",
       },
       {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Karla:wght@400&display=swap',
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Karla:wght@500&display=swap',
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Karla:wght@700&display=swap',
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;700&display=swap",
+        media: "print",
+        onload: "this.media='all'",
       },
     ],
   },
