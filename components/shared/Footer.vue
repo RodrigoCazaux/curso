@@ -5,7 +5,7 @@
         <div class="w-full lg:w-6/12 px-4">
           <img
             class="h-16 w-auto mb-4"
-            src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/logoInquieto.png?alt=media&token=d3dae27b-b6c9-4620-866c-349bc2659b20"
+            src="@/assets/images/logoInquieto.svg"
             alt=""
           />
           <p class="w-6/12 text-xs">

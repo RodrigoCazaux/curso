@@ -3,7 +3,7 @@
     <nuxt-link to="/" class="-m-1.5 p-1.5">
       <img
         class="h-12 w-auto mb-10"
-        src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/inquietoIcon.png?alt=media&token=b4b3047b-c061-4937-be49-13203f662918"
+        src="@/assets/images/isotipoInquieto.svg"
         alt=""
       />
     </nuxt-link>

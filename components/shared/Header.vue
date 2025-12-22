@@ -8,7 +8,7 @@
         <nuxt-link to="/" class="-m-1.5 p-1.5">
           <img
             class="h-16 w-auto"
-            src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/logoInquieto.png?alt=media&token=d3dae27b-b6c9-4620-866c-349bc2659b20"
+            src="@/assets/images/logoInquieto.svg"
             alt=""
           />
         </nuxt-link>
