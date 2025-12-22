@@ -1,7 +1,7 @@
 const siteUrl = process.env.SITE_URL || "https://inquieto.com";
 
 export default {
-  mode: "universal",
+  target: "static",
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: "Inquieto | Experiencias de vino",

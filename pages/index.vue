@@ -44,12 +44,13 @@
 </template>
 
 <script lang="ts">
+import Vue from "vue";
 import Hero from "~/components/home/Hero.vue";
 import UsProducts from "~/components/home/UsProducts.vue";
 import PrimaryButton from "~/components/shared/PrimaryButton.vue";
 import SecondaryButton from "~/components/shared/SecondaryButton.vue";
 
-export default {
+export default Vue.extend({
   name: "IndexPage",
   components: {
     UsProducts,
@@ -57,9 +58,10 @@ export default {
     SecondaryButton,
     PrimaryButton,
   },
-  head() {
-    const baseUrl = process.env.SITE_URL || "https://inquieto.com";
-    const url = `${baseUrl}${this.$route.path}`;
+  head(): Record<string, any> {
+    const baseUrl: string = process.env.SITE_URL || "https://inquieto.com";
+    const path = (this.$route && this.$route.path) || "/";
+    const url = `${baseUrl}${path}`;
     const title = "Inquieto | Experiencias de vino y catas en Uruguay";
     const description =
       "Catas, maridajes y vinos seleccionados para disfrutar y aprender sobre el vino en Uruguay.";
@@ -77,5 +79,5 @@ export default {
       link: [{ rel: "canonical", href: url }],
     };
   },
-};
+});
 </script>
