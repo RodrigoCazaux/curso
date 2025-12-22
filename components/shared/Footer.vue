@@ -7,6 +7,8 @@
             class="h-16 w-auto mb-4"
             src="@/assets/images/logoInquieto.svg"
             alt="Inquieto"
+            width="190"
+            height="64"
           />
           <p class="w-6/12 text-xs">
             Difundimos la cultura del vino a través de propuestas que eleven el

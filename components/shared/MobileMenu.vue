@@ -8,6 +8,8 @@
         class="h-12 w-auto mb-10"
         src="@/assets/images/isotipoInquieto.svg"
         alt="Inquieto"
+        width="140"
+        height="48"
       />
     </nuxt-link>
     <ul class="flex flex-col space-y-8 text-gray-200">

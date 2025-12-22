@@ -10,6 +10,8 @@
             class="h-16 w-auto"
             src="@/assets/images/logoInquieto.svg"
             alt="Inquieto"
+            width="190"
+            height="64"
           />
         </nuxt-link>
       </div>
