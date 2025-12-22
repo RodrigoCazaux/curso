@@ -1,171 +1,88 @@
 <template>
-  <div class="bg-white mx-0 md:mx-24 px-10 pb-8">
-    <div class="pt-6">
-      <nav aria-label="Breadcrumb">
-        <ol role="list" class="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-          <li>
-            <div class="flex items-center">
-              <a href="#" class="mr-2 text-sm font-medium text-gray-900">Vinos</a>
-              <svg width="16" height="20" viewBox="0 0 16 20" fill="currentColor" aria-hidden="true"
-                class="h-5 w-4 text-gray-300">
-                <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-              </svg>
-            </div>
-          </li>
-
-          <li>
-            <div class="flex items-center">
-              <a href="#" class="mr-2 text-sm font-medium text-gray-900">{{
-                product.product_categories
-              }}</a>
-              <svg width="16" height="20" viewBox="0 0 16 20" fill="currentColor" aria-hidden="true"
-                class="h-5 w-4 text-gray-300">
-                <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-              </svg>
-            </div>
-          </li>
-
-          <li class="text-sm">
-            <a href="#" aria-current="page" class="font-medium text-gray-500 hover:text-gray-600">{{
-              product.product_name }}</a>
-          </li>
-        </ol>
+  <div class="bg-gradient-to-b from-gray-50 to-white">
+    <div class="mx-auto max-w-6xl px-6 md:px-10 py-8 md:py-12">
+      <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+        <span class="text-gray-400">Vinos</span>
+        <span class="text-gray-300">/</span>
+        <span class="text-gray-500">{{ product.product_categories || 'Selección' }}</span>
+        <span class="text-gray-300">/</span>
+        <span class="text-gray-900 font-medium truncate">{{ product.product_name || 'Producto' }}</span>
       </nav>
 
-      <!-- Product info -->
-      <div class="grid grid-cols-12 mx-auto pt-8">
-        <div class="col-span-12 md:col-span-6 pb-8 max-h-80 mt-4 mr-8">
-          <img :src="product.main_variant_image" alt="Model wearing plain white basic tee."
-            class="h-full w-full object-contain object-center" />
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+        <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-center">
+          <div class="absolute inset-x-6 top-6 h-24 bg-gradient-to-b from-gray-100 to-transparent rounded-xl blur-xl opacity-60"></div>
+          <img
+            :src="mainImage"
+            alt="Botella de vino"
+            class="relative z-10 max-h-[520px] w-auto object-contain drop-shadow-xl"
+          />
         </div>
 
-        <!-- Options -->
-        <div class="pt-4 lg:row-span-3 lg:mt-0 col-span-12 md:col-span-6">
-          <h1 class="text-2xl font-bold text-secondary sm:text-3xl mb-2 uppercase">
-            {{ product.product_name }}
-          </h1>
-          <p class="text-3xl text-secondary mb-2">
-            ${{ product.variant_price }}
-          </p>
-          <InputNumber :value="cantidad" @input="updaeValue" class="mb-2" />
-          <PrimaryButton @click="handleAddToCart" text="Agregar al carrito" />
-          <div class="mt-10">
-            <h3 class="text-sm font-medium text-gray-900">Detalles</h3>
-            <div class="mt-6">
-              <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
-                <li class="text-gray-400">
-                  <span class="text-gray-600">{{ product.product_bodega ? product.product_bodega : '-' }}</span>
-                </li>
-
-                <li class="text-gray-400">
-                  <span class="text-gray-600">{{ product.product_year ? product.product_year : '-' }}</span>
-                </li>
-                <!-- 
-                <li class="text-gray-400">
-                  <span class="text-gray-600">URUGUAY</span>
-                </li>
-
-                <li class="text-gray-400">
-                  <span class="text-gray-600">750CC</span>
-                </li> -->
-              </ul>
+        <div class="space-y-6">
+          <div class="flex items-start justify-between">
+            <div>
+              <h1 class="text-3xl md:text-4xl font-bold text-secondary leading-tight uppercase">
+                {{ product.product_name }}
+              </h1>
+              <p class="mt-2 text-3xl text-secondary font-semibold">${{ product.variant_price }}</p>
             </div>
           </div>
-          <!-- Reviews -->
 
-          <!-- 
-            <div class="mt-10">
-            <h2 class="text-sm font-medium text-gray-900">Details</h2>
+          <div class="space-y-3">
+            <label class="text-sm font-medium text-gray-700">Cantidad</label>
+            <div class="flex flex-wrap items-center gap-3">
+              <InputNumber :value="cantidad" @input="updaeValue" />
+              <PrimaryButton
+                class="h-12 flex items-center"
+                :disabled="!product.stock"
+                @click="handleAddToCart"
+                text="Agregar al carrito"
+              />
+            </div>
+            <p v-if="feedbackMessage" class="text-sm text-emerald-600">{{ feedbackMessage }}</p>
+          </div>
 
-            <div class="mt-4 space-y-6">
-              <p class="text-sm text-gray-600">
-                {{ product.text }}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-wide text-gray-500">Bodega</p>
+              <p class="text-base text-gray-900 font-medium mt-1">
+                {{ product.product_bodega || '-' }}
+              </p>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-wide text-gray-500">Año</p>
+              <p class="text-base text-gray-900 font-medium mt-1">
+                {{ product.product_year || '-' }}
               </p>
             </div>
           </div>
-            
-            <div class="mt-6">
-            <h3 class="sr-only">Reviews</h3>
-            <div class="flex items-center">
-              <div class="flex items-center">
-             
-                <svg
-                  class="text-gray-900 h-5 w-5 flex-shrink-0"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
 
-                <svg
-                  class="text-gray-900 h-5 w-5 flex-shrink-0"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-
-                <svg
-                  class="text-gray-900 h-5 w-5 flex-shrink-0"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-
-                <svg
-                  class="text-gray-900 h-5 w-5 flex-shrink-0"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-
-                <svg
-                  class="text-gray-200 h-5 w-5 flex-shrink-0"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p class="sr-only">4 out of 5 stars</p>
-              <a
-                href="#"
-                class="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                >117 reviews</a
-              >
-            </div>
-          </div> -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Detalles</h3>
+            <p class="mt-3 text-gray-600 leading-7" v-if="product.product_description">
+              {{ product.product_description }}
+            </p>
+            <p class="mt-3 text-gray-400" v-else>
+              Pronto sumaremos las notas de cata y maridaje de este vino.
+            </p>
+          </div>
         </div>
-        <p class="col-span-12 text-gray-500 font-light leading-7 mb-2">
-          {{ product.product_description }}
-        </p>
+      </div>
+    </div>
+
+    <!-- CTA móvil fija -->
+    <div class="fixed bottom-0 inset-x-0 z-30 bg-white/90 border-t border-gray-200 px-4 py-3 backdrop-blur md:hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-500">Total</p>
+          <p class="text-lg font-semibold text-secondary">${{ product.variant_price }}</p>
+        </div>
+        <PrimaryButton
+          :disabled="!product.stock"
+          @click="handleAddToCart"
+          text="Agregar"
+        />
       </div>
     </div>
   </div>
@@ -184,6 +101,8 @@ export default {
   data() {
     return {
       cantidad: 1,
+      feedbackMessage: "",
+      feedbackTimeout: null,
     };
   },
 
@@ -192,6 +111,14 @@ export default {
   computed: {
     product() {
       return this.$store.state.product;
+    },
+    mainImage() {
+      const images = Array.isArray(this.product.main_variant_image)
+        ? this.product.main_variant_image
+        : this.product.main_variant_image
+        ? [this.product.main_variant_image]
+        : [];
+      return images[0] || "https://via.placeholder.com/600x800?text=Sin+imagen";
     },
   },
 
@@ -205,6 +132,15 @@ export default {
         quantity: this.cantidad,
       });
       eventBus.$emit("addToCart");
+      this.showFeedback("Agregado al carrito");
+    },
+    showFeedback(message) {
+      if (this.feedbackTimeout) clearTimeout(this.feedbackTimeout);
+      this.feedbackMessage = message;
+      this.feedbackTimeout = setTimeout(() => {
+        this.feedbackMessage = "";
+        this.feedbackTimeout = null;
+      }, 2500);
     },
   },
 };

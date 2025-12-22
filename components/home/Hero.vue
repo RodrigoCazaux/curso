@@ -32,14 +32,14 @@ export default { components: { PrimaryButton } };
 
 <style>
 .hero-bg {
-  background-image: url("https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/bannerInquietos.jpeg?alt=media&token=18c65a7c-00ea-455e-8edd-f0a5b20b8f46");
+  background-image: url("https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/bannerInquietos%20.jpg?alt=media&token=1112ebbd-0039-48db-9579-0809f00c5f7d");
   background-repeat: no-repeat;
   background-size: cover;
 }
 
 @media only screen and (max-width: 600px) {
   .hero-bg {
-    background-image: url("https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/bannerInquietos.jpeg?alt=media&token=18c65a7c-00ea-455e-8edd-f0a5b20b8f46");
+    background-image: url("https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/bannerInquietos%20.jpg?alt=media&token=1112ebbd-0039-48db-9579-0809f00c5f7d");
     background-repeat: no-repeat;
     background-size: cover;
     background-position-x: -50px;
