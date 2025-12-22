@@ -9,7 +9,7 @@
           <img
             class="h-16 w-auto"
             src="@/assets/images/logoInquieto.svg"
-            alt=""
+            alt="Inquieto"
           />
         </nuxt-link>
       </div>

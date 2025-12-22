@@ -6,7 +6,7 @@
           <img
             class="h-16 w-auto mb-4"
             src="@/assets/images/logoInquieto.svg"
-            alt=""
+            alt="Inquieto"
           />
           <p class="w-6/12 text-xs">
             Difundimos la cultura del vino a través de propuestas que eleven el
@@ -22,30 +22,30 @@
               >
               <ul class="list-unstyled text-xs">
                 <li>
-                  <a
+                  <nuxt-link
                     class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://www.creative-tim.com/presentation"
-                    >Inicio</a
+                    to="/"
+                    >Inicio</nuxt-link
+                  >
+                </li>
+                <li>
+                  <nuxt-link
+                    class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
+                    to="/catalogo"
+                    >Vinos</nuxt-link
+                  >
+                </li>
+                <li>
+                  <nuxt-link
+                    class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
+                    to="/nosotros"
+                    >Nosotros</nuxt-link
                   >
                 </li>
                 <li>
                   <a
                     class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://blog.creative-tim.com"
-                    >Vinos</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://www.github.com/creativetimofficial"
-                    >Nosotros</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://www.creative-tim.com/bootstrap-themes/free"
+                    href="mailto:inquieto.experiencias@gmail.com"
                     >Contacto</a
                   >
                 </li>
@@ -60,21 +60,23 @@
                 <li>
                   <a
                     class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://www.creative-tim.com/presentation"
+                    href="mailto:inquieto.experiencias@gmail.com"
                     >inquieto.experiencias@gmail.com</a
                   >
                 </li>
                 <li>
                   <a
                     class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://blog.creative-tim.com"
+                    href="tel:096260462"
                     >096260462</a
                   >
                 </li>
                 <li>
                   <a
                     class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="https://www.github.com/creativetimofficial"
+                    href="https://www.instagram.com/"
+                    rel="noopener noreferrer"
+                    target="_blank"
                     >Instagram</a
                   >
                 </li>

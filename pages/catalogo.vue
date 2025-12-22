@@ -145,6 +145,26 @@ export default {
         });
     },
   },
+  head() {
+    const baseUrl = process.env.SITE_URL || "https://inquieto.com";
+    const url = `${baseUrl}${this.$route.path}`;
+    const title = "Catálogo de vinos | Inquieto";
+    const description =
+      "Explora nuestra selección curada de vinos finos uruguayos por categoría y bodega.";
+
+    return {
+      title,
+      meta: [
+        { hid: "description", name: "description", content: description },
+        { hid: "og:title", property: "og:title", content: title },
+        { hid: "og:description", property: "og:description", content: description },
+        { hid: "og:url", property: "og:url", content: url },
+        { hid: "twitter:title", name: "twitter:title", content: title },
+        { hid: "twitter:description", name: "twitter:description", content: description },
+      ],
+      link: [{ rel: "canonical", href: url }],
+    };
+  },
 };
 </script>
 

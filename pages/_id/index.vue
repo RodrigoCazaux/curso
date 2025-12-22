@@ -2,7 +2,7 @@
   <div class="bg-gradient-to-b from-gray-50 to-white">
     <div class="mx-auto max-w-6xl px-6 md:px-10 py-8 md:py-12">
       <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
-        <span class="text-gray-400">Vinos</span>
+        <nuxt-link to="/catalogo" class="text-gray-400 hover:text-gray-600">Vinos</nuxt-link>
         <span class="text-gray-300">/</span>
         <span class="text-gray-500">{{ product.product_categories || 'Selección' }}</span>
         <span class="text-gray-300">/</span>
@@ -14,7 +14,7 @@
           <div class="absolute inset-x-6 top-6 h-24 bg-gradient-to-b from-gray-100 to-transparent rounded-xl blur-xl opacity-60"></div>
           <img
             :src="mainImage"
-            alt="Botella de vino"
+            :alt="product.product_name || 'Vino Inquieto'"
             class="relative z-10 max-h-[520px] w-auto object-contain drop-shadow-xl"
           />
         </div>
@@ -110,7 +110,7 @@ export default {
   
   computed: {
     product() {
-      return this.$store.state.product;
+      return this.$store.state.product || {};
     },
     mainImage() {
       const images = Array.isArray(this.product.main_variant_image)
@@ -142,6 +142,58 @@ export default {
         this.feedbackTimeout = null;
       }, 2500);
     },
+  },
+  head() {
+    const baseUrl = process.env.SITE_URL || "https://inquieto.com";
+    const url = `${baseUrl}${this.$route.path}`;
+    const title = this.product.product_name
+      ? `${this.product.product_name} | Inquieto`
+      : "Vino seleccionado | Inquieto";
+    const description =
+      this.product.product_description ||
+      "Descubre este vino seleccionado por Inquieto y conoce sus notas y bodega.";
+    const image = this.mainImage;
+    const currency = "UYU";
+    const hasStock = this.product.stock === undefined ? true : !!this.product.stock;
+    const availability = hasStock ? "http://schema.org/InStock" : "http://schema.org/OutOfStock";
+
+    const productLd = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: this.product.product_name || "Vino Inquieto",
+      description,
+      image: [image],
+      brand: { "@type": "Brand", name: this.product.product_bodega || "Inquieto" },
+      offers: {
+        "@type": "Offer",
+        priceCurrency: currency,
+        price: this.product.variant_price || 0,
+        availability,
+        url,
+      },
+    };
+
+    return {
+      title,
+      meta: [
+        { hid: "description", name: "description", content: description },
+        { hid: "og:title", property: "og:title", content: title },
+        { hid: "og:description", property: "og:description", content: description },
+        { hid: "og:url", property: "og:url", content: url },
+        { hid: "og:image", property: "og:image", content: image },
+        { hid: "twitter:title", name: "twitter:title", content: title },
+        { hid: "twitter:description", name: "twitter:description", content: description },
+        { hid: "twitter:image", name: "twitter:image", content: image },
+      ],
+      link: [{ rel: "canonical", href: url }],
+      script: [
+        {
+          hid: "ld-product",
+          type: "application/ld+json",
+          json: productLd,
+        },
+      ],
+    };
   },
 };
 </script>
