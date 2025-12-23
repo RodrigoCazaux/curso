@@ -21,7 +21,7 @@
             <img
               alt="..."
               class="w-full h-full object-cover rounded-l-lg shadow-xl"
-              src="https://uploads-ssl.webflow.com/636f2dc9ef41c9384311dd93/637e89bde717ce67dabfca81_Santiago.png"
+              src="@/assets/images/SantiagoCazaux.jpg"
             />
           </div>
         </div>
