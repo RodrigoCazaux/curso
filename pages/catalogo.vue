@@ -1,177 +1,36 @@
 <template>
   <div class="pb-8">
-    <section
-      class="flex flex-col items-start justify-center px-8 md:px-32 h-72 bg-secondary -mx-10 md:-mx-32 -mt-16 mb-8 banner bg-no-repeat"
-    >
-      <h1 class="text-white">Nuestros Vinos</h1>
-      <hr class="border-secondary border w-1/12 mb-4" />
-      <p class="text-gray-400 w-10/12 md:w-4/12 leading-6">
-        Un viaje de degustación a través de nuestra selección única de vinos
-        finos
-      </p>
+    <section class="flex flex-col justify-center px-8 md:px-32 h-72 bg-secondary -mx-10 md:-mx-32 -mt-16 mb-8 banner">
+      <h1 class="text-white">Nuestros vinos</h1><p class="text-gray-200">Vinos finos uruguayos para disfrutar y compartir.</p>
     </section>
-    <section class="-mt-20">
-      <CatalogFilters
-        :categories="categories"
-        :bodegas="bodegas"
-        @filters-change="applyFilters"
-      />
-      <Catalog :products="filteredProducts" />
+    <section class="-mt-20 relative">
+      <CatalogFilters :categories="categories" :bodegas="bodegas" @filters-change="filters = { ...filters, ...$event }" />
+      <p v-if="loading" role="status">Cargando vinos…</p>
+      <div v-else-if="error" role="alert"><p class="text-rose-700">{{ error }}</p><button @click="load" class="text-primary underline">Reintentar</button></div>
+      <p v-else-if="!filteredProducts.length">No encontramos vinos con esos filtros.</p>
+      <Catalog v-else :products="filteredProducts" />
     </section>
   </div>
 </template>
-
-<script>
-import CatalogFilters from "~/components/catalog/Categories.vue";
-import Catalog from "~/components/home/Catalog.vue";
-import { db } from "@/plugins/firebase";
-export default {
-  components: {
-    Catalog,
-    CatalogFilters,
-  },
-  data() {
-    return {
-      products: [],
-      filteredProducts: [],
-      categories: [],
-      bodegas: [],
-      filters: {
-        search: "",
-        category: "",
-        bodega: "",
-      },
-    };
-  },
-  async created() {
-    try {
-      // Obtenemos todos los productos y ordenamos localmente para no excluir los que no tienen createdAt
-      const snapshot = await db.collection("Vinos").get();
-
-      this.products = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      this.buildFilterOptions();
-      this.applyFilters();
-    } catch (error) {
-      console.log(error);
-    }
-  },
-
-  methods: {
-    buildFilterOptions() {
-      const categorySet = new Set();
-      const bodegaSet = new Set();
-
-      this.products.forEach((product) => {
-        const categories = Array.isArray(product.product_categories)
-          ? product.product_categories
-          : [product.product_categories];
-
-        categories
-          .filter(Boolean)
-          .forEach((category) => {
-            const normalized = typeof category === "string" ? category.trim() : category;
-            if (normalized) {
-              categorySet.add(normalized);
-            }
-          });
-
-        if (product.product_bodega) {
-          const normalizedBodega =
-            typeof product.product_bodega === "string"
-              ? product.product_bodega.trim()
-              : product.product_bodega;
-
-          if (normalizedBodega) {
-            bodegaSet.add(normalizedBodega);
-          }
-        }
-      });
-
-      this.categories = Array.from(categorySet);
-      this.bodegas = Array.from(bodegaSet);
-    },
-    applyFilters(newFilters = {}) {
-      this.filters = { ...this.filters, ...newFilters };
-
-      const searchTerm = (this.filters.search || "").toLowerCase();
-      const selectedCategoryValue = this.filters.category
-        ? this.filters.category.toString().toLowerCase()
-        : "";
-      const selectedBodegaValue = this.filters.bodega
-        ? this.filters.bodega.toString().toLowerCase()
-        : "";
-
-      this.filteredProducts = this.products
-        .filter((product) => {
-          const productName = (product.product_name || "").toLowerCase();
-          const productDescription = (product.product_description || "").toLowerCase();
-          const productBodega = (product.product_bodega || "").toLowerCase();
-
-        const categories = Array.isArray(product.product_categories)
-          ? product.product_categories
-          : [product.product_categories];
-
-        const matchesCategory =
-          !selectedCategoryValue ||
-          categories
-            .filter(Boolean)
-            .some(
-              (category) =>
-                category &&
-                category.toString().toLowerCase() === selectedCategoryValue
-            );
-
-        const matchesBodega =
-          !selectedBodegaValue || productBodega === selectedBodegaValue;
-
-        const matchesSearch =
-          !searchTerm ||
-          productName.includes(searchTerm) ||
-          productDescription.includes(searchTerm) ||
-          productBodega.includes(searchTerm);
-
-        const matchesStock = product.stock === undefined ? true : product.stock;
-
-          return matchesCategory && matchesBodega && matchesSearch && matchesStock;
-        })
-        .sort((a, b) => {
-          const aTime = a?.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-          const bTime = b?.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-          return bTime - aTime;
-        });
-    },
-  },
-  head() {
-    const baseUrl = process.env.SITE_URL || "https://inquieto.com";
-    const url = `${baseUrl}${this.$route.path}`;
-    const title = "Catálogo de vinos | Inquieto";
-    const description =
-      "Explora nuestra selección curada de vinos finos uruguayos por categoría y bodega.";
-
-    return {
-      title,
-      meta: [
-        { hid: "description", name: "description", content: description },
-        { hid: "og:title", property: "og:title", content: title },
-        { hid: "og:description", property: "og:description", content: description },
-        { hid: "og:url", property: "og:url", content: url },
-        { hid: "twitter:title", name: "twitter:title", content: title },
-        { hid: "twitter:description", name: "twitter:description", content: description },
-      ],
-      link: [{ rel: "canonical", href: url }],
-    };
-  },
-};
+<script setup>
+import CatalogFilters from '~/components/catalog/Categories.vue';
+import Catalog from '~/components/home/Catalog.vue';
+import { isAvailable } from '@/lib/wines';
+const store = useNuxtApp().$store;
+const filters = ref({ search: '', category: '', bodega: '' });
+const loading = ref(true); const error = ref('');
+const products = computed(() => store.state.products.filter(isAvailable));
+const categories = computed(() => [...new Set(products.value.flatMap(product => Array.isArray(product.product_categories) ? product.product_categories : [product.product_categories]).filter(Boolean))].sort());
+const bodegas = computed(() => [...new Set(products.value.map(product => product.product_bodega).filter(Boolean))].sort());
+const filteredProducts = computed(() => products.value.filter(product => {
+  const search = filters.value.search.toLocaleLowerCase();
+  const category = Array.isArray(product.product_categories) ? product.product_categories : [product.product_categories];
+  return (!filters.value.category || category.includes(filters.value.category)) && (!filters.value.bodega || product.product_bodega === filters.value.bodega) && (!search || [product.product_name, product.product_description, product.product_bodega].some(value => String(value || '').toLocaleLowerCase().includes(search)));
+}));
+async function load() { loading.value = true; error.value = ''; try { await store.dispatch('fetchProducts'); } catch { error.value = 'No pudimos cargar el catálogo. Revisa tu conexión.'; } finally { loading.value = false; } }
+onMounted(load);
+useWineSeo('Catálogo de vinos | Inquieto', 'Explora nuestra selección de vinos finos uruguayos por categoría y bodega.');
 </script>
-
-<style>
-.banner {
-  background: url("https://uploads-ssl.webflow.com/636f2dc9ef41c9384311dd93/6373c467e0f78d1f250a7e5d_99a87d8071214fa4ab13060de66a4c93.jpeg");
-  background-repeat: no-repeat;
-  background-size: cover;
-}
+<style scoped>
+.banner { background: linear-gradient(90deg, rgba(20,30,45,.9), rgba(20,30,45,.5)), url('@/assets/images/bannerInquietos.jpg') center / cover; }
 </style>

@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Every Authentication account is an administrator. Disable end-user signup in Firebase before deploying.
+    function admin() { return request.auth != null; }
+    function allowedFields() {
+      return ['product_name','product_handle','product_categories','category_id','product_bodega','bodega_id',
+        'variant_price','product_description','main_variant_image','product_cantidad','product_year',
+        'inventory_units','stock','archived','createdAt','updatedAt'];
+    }
+    function validChanges(keys) {
+      let d = request.resource.data;
+      return keys.hasOnly(allowedFields()) &&
+        (!keys.hasAny(['product_name']) || (d.product_name is string && d.product_name.size() > 0 && d.product_name.size() <= 200)) &&
+        (!keys.hasAny(['product_handle']) || (d.product_handle is string && d.product_handle.size() <= 300)) &&
+        (!keys.hasAny(['variant_price']) || (d.variant_price is number && d.variant_price >= 0 && d.variant_price <= 100000000)) &&
+        (!keys.hasAny(['stock']) || d.stock is bool) &&
+        (!keys.hasAny(['archived']) || d.archived is bool) &&
+        (!keys.hasAny(['inventory_units']) || d.inventory_units == null || (d.inventory_units is int && d.inventory_units >= 0 && d.inventory_units <= 1000000)) &&
+        (!keys.hasAny(['product_description']) || (d.product_description is string && d.product_description.size() <= 10000)) &&
+        (!keys.hasAny(['product_cantidad']) || (d.product_cantidad is string && d.product_cantidad.size() <= 100)) &&
+        (!keys.hasAny(['product_year']) || (d.product_year is string && (d.product_year == '' || d.product_year.matches('^(19|20)[0-9]{2}$')))) &&
+        (!keys.hasAny(['main_variant_image']) || (d.main_variant_image is list && d.main_variant_image.size() <= 8)) &&
+        (!keys.hasAny(['category_id','product_categories']) || ((d.product_categories is string || d.product_categories is list) &&
+          (!keys.hasAny(['category_id']) || (d.category_id is string && exists(/databases/$(database)/documents/categories/$(d.category_id)))))) &&
+        (!keys.hasAny(['bodega_id','product_bodega']) || (d.product_bodega is string &&
+          (!keys.hasAny(['bodega_id']) || (d.bodega_id is string && exists(/databases/$(database)/documents/bodegas/$(d.bodega_id)))))) &&
+        d.updatedAt == request.time;
+    }
+    match /Vinos/{id} {
+      // Catalog fields are public, including archived records. Archiving hides a wine in the shop, not its data.
+      allow read: if true;
+      allow create: if admin() && request.resource.data.keys().hasAll(['product_name','variant_price','stock','archived','category_id','bodega_id','main_variant_image','createdAt','updatedAt']) && validChanges(request.resource.data.keys()) && request.resource.data.createdAt == request.time;
+      // Validate changed fields so old documents can be normalized without deleting legacy fields.
+      allow update: if admin() && validChanges(request.resource.data.diff(resource.data).affectedKeys()) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['createdAt']);
+      allow delete: if admin() && resource.data.get('archived', false) == true;
+    }
+    match /{collection}/{id} {
+      allow read: if collection in ['categories','bodegas'];
+      allow create, update: if collection in ['categories','bodegas'] && admin() &&
+        request.resource.data.keys().hasOnly(['name','description','createdAt','updatedAt','id']) &&
+        request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 200 &&
+        request.resource.data.description is string && request.resource.data.description.size() <= 10000 &&
+        request.resource.data.updatedAt == request.time;
+      allow delete: if collection in ['categories','bodegas'] && admin();
+    }
+  }
+}

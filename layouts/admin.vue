@@ -1,15 +1,6 @@
 <template>
-  <div>
-    <Navbar />
-    <div class="px-32 py-32 bg-background min-h-screen">
-      <nuxt />
-    </div>
-  </div>
+  <div><Navbar /><main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 bg-background min-h-screen"><slot /></main></div>
 </template>
-
-<script>
+<script setup>
 import Navbar from "@/components/admin/Navbar.vue";
-export default {
-  components: { Navbar },
-};
 </script>

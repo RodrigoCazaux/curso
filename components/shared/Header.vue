@@ -76,6 +76,7 @@
 
 <script>
 export default {
+  emits: ['click', 'openMobileMenu'],
   name: "Header",
   methods: {
     toggleCart() {

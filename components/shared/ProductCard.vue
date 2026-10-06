@@ -7,8 +7,8 @@
       class="min-h-80 relative aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:aspect-none lg:h-80"
     >
       <img
-        :src="image[0]"
-        alt="product image"
+        :src="image[0] || '/wine-placeholder.svg'"
+        :alt="name" loading="lazy"
         class="h-full w-full object-cover object-center lg:h-full lg:w-full"
       />
     </div>
@@ -20,22 +20,24 @@
       <h4 class="mt-1">
         {{ name }}
       </h4>
-      <p class="text-sm text-gray-500">UYU {{ price }}</p>
+      <p class="text-sm text-gray-500">{{ money(price) }}</p>
     </div>
   </div>
 </template>
 
 <script>
+import { formatMoney } from "@/lib/wines";
 export default {
   name: "ProductCard",
   props: {
     name: { type: String, default: "Basic Tee" },
     description: { type: String, default: "This is a short description" },
-    category: { type: String, default: "shirt" },
-    price: { type: String, default: "35" },
+    category: { type: [String, Array], default: "shirt" },
+    price: { type: [String, Number], default: "35" },
     slug: { type: String, default: "product-name" },
-    image: { type: Array, default: "" },
+    image: { type: Array, default: () => [] },
   },
+  methods: { money(value) { return formatMoney(value, this.$config.public.currency); } },
   computed: {
     targetPath() {
       if (!this.slug) return "/";

@@ -4,7 +4,7 @@
     <MobileMenu v-if="showMobileMenu" @openMobileMenu="openMenu"/>
     <Cart @click="cart" :showCart="openCart" />
     <div class="px-10 md:px-32 py-16 bg-background">
-      <nuxt />
+      <slot />
     </div>
     <Footer/>
   </div>
@@ -14,7 +14,7 @@
 import Header from "@/components/shared/Header.vue";
 import MobileMenu from "@/components/shared/MobileMenu.vue";
 import Cart from "@/components/shared/Cart.vue";
-import eventBus from '@/plugins/eventBus';
+import eventBus from '@/lib/eventBus';
 import Footer from '~/components/shared/Footer.vue';
 export default {
   components: {
@@ -31,16 +31,15 @@ export default {
   },
   created() {
     // Escuchar el evento para abrir el carrito de compras
-    eventBus.$on('addToCart', () => {
-      this.openCart = true;
-    });
+    eventBus.$on('addToCart', this.showCart);
   },
+  beforeUnmount() { eventBus.$off('addToCart', this.showCart); },
   methods: {
+    showCart() { this.openCart = true; },
     cart() {
       this.openCart = !this.openCart;
     },
     openMenu(){
-      console.log('in')
       this.showMobileMenu = !this.showMobileMenu;
     }
   },

@@ -47,6 +47,7 @@
 import BaseDropdown from "@/components/shared/BaseDropdown.vue";
 
 export default {
+  emits: ['filters-change'],
   name: "CatalogFilters",
   components: { BaseDropdown },
   props: {

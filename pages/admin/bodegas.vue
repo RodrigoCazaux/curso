@@ -18,7 +18,7 @@
     </div>
 
     <div
-      v-if="feedback.message"
+      v-if="feedback.message" :role="feedback.type === 'error' ? 'alert' : 'status'"
       :class="feedback.type === 'success'
         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
         : 'bg-rose-50 text-rose-700 border-rose-200'"
@@ -168,12 +168,13 @@
   </div>
 </template>
 
+<script setup>
+definePageMeta({ middleware: "auth", layout: "admin" });
+</script>
 <script>
 import { mapActions, mapState } from "vuex";
 
 export default {
-  middleware: "auth",
-  layout: "admin",
   data() {
     return {
       form: {
@@ -201,10 +202,10 @@ export default {
       return Array.isArray(this.bodegas) ? this.bodegas : [];
     },
   },
-  created() {
+  mounted() {
     this.loadBodegas();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.feedbackTimeout) clearTimeout(this.feedbackTimeout);
   },
   methods: {
@@ -297,6 +298,7 @@ export default {
     showFeedback(type, message) {
       if (this.feedbackTimeout) clearTimeout(this.feedbackTimeout);
       this.feedback = { type, message };
+      if (type === "error") { this.feedbackTimeout = null; return; }
       this.feedbackTimeout = setTimeout(() => {
         this.feedback = { type: null, message: "" };
         this.feedbackTimeout = null;

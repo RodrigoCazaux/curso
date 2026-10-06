@@ -1,87 +1,49 @@
 <template>
-  <section class="bg-gray-900 h-screen">
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-      <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-        <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo" />
-        Flowbite
-      </a>
-      <div
-        class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-          <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-            Sign in to your account
-          </h1>
-          <form class="space-y-4 md:space-y-6" @submit.prevent="onLogin">
-            <div>
-              <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-              <input v-model="email" type="email" name="email" id="email"
-                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="name@company.com" required="" />
-            </div>
-            <div>
-              <label for="password"
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-              <input v-model="password" type="password" name="password" id="password" placeholder="••••••••"
-                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                required="" />
-            </div>
-            <div class="flex justify-end">
-              <a href="#"
-                class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500 text-blue-500">Forgot
-                password?</a>
-            </div>
-            <button type="submit"
-              class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
-              :disabled="isSubmitting">
-              {{ isSubmitting ? 'Ingresando...' : 'Sign in' }}
-            </button>
-            <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-              Don’t have an account yet?
-              <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
+  <main class="min-h-screen bg-background px-4 flex items-center justify-center">
+    <section class="max-w-md w-full rounded-2xl bg-white p-6 sm:p-10 shadow-lg space-y-6">
+      <nuxt-link to="/" class="text-primary font-bold text-xl">Inquieto</nuxt-link>
+      <h1 class="text-2xl">Gestionar los vinos</h1>
+      <p v-if="message" :role="isError ? 'alert' : 'status'" :class="isError ? 'text-rose-700' : 'text-emerald-700'">{{ message }}</p>
+      <form @submit.prevent="login" class="space-y-5">
+        <label class="block text-sm text-gray-900">Correo electrónico<input v-model.trim="email" type="email" required autocomplete="username" class="block w-full rounded-lg border p-3 mt-2" /></label>
+        <label class="block text-sm text-gray-900">Contraseña<input v-model="password" type="password" required autocomplete="current-password" class="block w-full rounded-lg border p-3 mt-2" /></label>
+        <button :disabled="busy" class="w-full rounded-lg bg-secondary text-white py-3 disabled:opacity-50">{{ busy ? 'Ingresando…' : 'Entrar' }}</button>
+      </form>
+      <button type="button" :disabled="busy" @click="resetPassword" class="text-primary text-sm">Olvidé mi contraseña</button>
+    </section>
+  </main>
 </template>
-
+<script setup>
+definePageMeta({ layout: 'auth' });
+</script>
 <script>
-import { firebase } from '@/plugins/firebase'
+import { firebase } from '@/lib/firebase';
 export default {
-  name: "login",
-  layout: "auth",
-  data() {
-    return {
-      email: "",
-      password: "",
-      isSubmitting: false,
-    };
+  data() { return { email: '', password: '', busy: false, message: '', isError: false }; },
+  mounted() {
+    if (this.$route.query.reason) { this.isError = true; this.message = 'No se pudo verificar el acceso. Revisa tu conexión.'; }
   },
   methods: {
-  async onLogin() {
-    if (this.isSubmitting) return;
-
-    try {
-      this.isSubmitting = true;
-      const auth = firebase.auth();
-      await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-      const userCredential = await auth.signInWithEmailAndPassword(this.email, this.password);
-      if (!userCredential?.user) {
-        throw new Error("No se pudo obtener el usuario autenticado.");
-      }
-      // Asegúrate de que la ruta exista
-      this.$router.push({ path: '/admin' });
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error.message);
-      alert("Error al iniciar sesión: " + error.message);
-    } finally {
-      this.isSubmitting = false;
-    }
-  }
-}
-
+    async login() {
+      if (this.busy) return;
+      this.busy = true; this.message = '';
+      try {
+        const auth = firebase.auth(); await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        await auth.signInWithEmailAndPassword(this.email, this.password);
+        this.password = ''; await this.$router.push('/admin');
+      } catch (error) {
+        this.isError = true;
+        this.message = error.code === 'auth/too-many-requests' ? 'Hubo demasiados intentos. Espera unos minutos.' : error.code === 'auth/network-request-failed' ? 'No hay conexión. Inténtalo otra vez.' : 'No pudimos iniciar sesión. Revisa el correo y la contraseña o recupera tu acceso.';
+      } finally { this.busy = false; }
+    },
+    async resetPassword() {
+      if (this.busy) return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) { this.isError = true; this.message = 'Escribe tu correo electrónico para recuperar la contraseña.'; return; }
+      this.busy = true; this.message = '';
+      try { await firebase.auth().sendPasswordResetEmail(this.email); this.isError = false; this.message = 'Si el correo tiene una cuenta, recibirás un enlace para restablecer la contraseña.'; }
+      catch (error) { this.isError = error.code !== 'auth/user-not-found'; this.message = this.isError ? 'No se pudo enviar la solicitud. Revisa tu conexión e inténtalo otra vez.' : 'Si el correo tiene una cuenta, recibirás un enlace para restablecer la contraseña.'; }
+      finally { this.busy = false; }
+    },
+  },
 };
 </script>
-
-<style></style>

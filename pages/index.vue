@@ -43,41 +43,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import Hero from "~/components/home/Hero.vue";
-import UsProducts from "~/components/home/UsProducts.vue";
-import PrimaryButton from "~/components/shared/PrimaryButton.vue";
-import SecondaryButton from "~/components/shared/SecondaryButton.vue";
-
-export default Vue.extend({
-  name: "IndexPage",
-  components: {
-    UsProducts,
-    Hero,
-    SecondaryButton,
-    PrimaryButton,
-  },
-  head(): Record<string, any> {
-    const baseUrl: string = process.env.SITE_URL || "https://inquieto.com";
-    const path = (this.$route && this.$route.path) || "/";
-    const url = `${baseUrl}${path}`;
-    const title = "Inquieto | Experiencias de vino y catas en Uruguay";
-    const description =
-      "Catas, maridajes y vinos seleccionados para disfrutar y aprender sobre el vino en Uruguay.";
-
-    return {
-      title,
-      meta: [
-        { hid: "description", name: "description", content: description },
-        { hid: "og:title", property: "og:title", content: title },
-        { hid: "og:description", property: "og:description", content: description },
-        { hid: "og:url", property: "og:url", content: url },
-        { hid: "twitter:title", name: "twitter:title", content: title },
-        { hid: "twitter:description", name: "twitter:description", content: description },
-      ],
-      link: [{ rel: "canonical", href: url }],
-    };
-  },
-});
+<script setup>
+import Hero from '~/components/home/Hero.vue';
+import UsProducts from '~/components/home/UsProducts.vue';
+import PrimaryButton from '~/components/shared/PrimaryButton.vue';
+import SecondaryButton from '~/components/shared/SecondaryButton.vue';
+useWineSeo('Inquieto | Experiencias de vino y catas en Uruguay', 'Catas, maridajes y vinos seleccionados para disfrutar y aprender sobre el vino en Uruguay.');
 </script>

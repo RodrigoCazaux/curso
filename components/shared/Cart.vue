@@ -1,125 +1,50 @@
 <template>
-  <section v-if="showCart" class="fixed flex justify-end w-full min-h-screen bg-black z-10 top-0 bg-opacity-40">
-    <div class="flex h-20 flex-col overflow-y-scroll bg-white shadow-xl min-h-screen animate-fadeIn">
-      <div class="flex-1 px-4 py-6 sm:px-6 overflow-scroll h-20">
-        <div class="flex items-start justify-between">
-          <h4 id="slide-over-title text-primary">Tu pedido</h4>
-          <div class="ml-3 flex h-7 items-center">
-            <button @click="close" type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
-              <span @click="close" class="sr-only">Close panel</span>
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+  <section v-if="showCart" class="fixed inset-0 z-50 flex justify-end bg-black bg-opacity-40" role="dialog" aria-modal="true" aria-labelledby="cart-title" @keydown.esc="close" @click.self="close">
+    <div class="w-full max-w-md flex flex-col bg-white shadow-xl h-full p-5 overflow-y-auto" ref="panel" tabindex="-1">
+      <div class="flex justify-between items-center mb-6"><h2 id="cart-title" class="text-xl">Tu pedido</h2><button @click="close" aria-label="Cerrar pedido">✕</button></div>
+      <p v-if="!items.length">Todavía no añadiste vinos.</p>
+      <ul class="divide-y flex-1">
+        <li v-for="item in items" :key="item.id" class="py-4 flex gap-4">
+          <img :src="item.image" :alt="item.name" class="w-20 h-28 object-contain" />
+          <div class="flex-1 space-y-2"><nuxt-link :to="`/${item.id}`" @click="close">{{ item.name }}</nuxt-link><p>{{ money(item.unitPrice * item.qty) }}</p>
+            <label class="block text-sm">Botellas <input type="number" min="1" step="1" :max="item.maxQty || 1000000" :value="item.qty" class="w-20 border rounded p-2" @change="setQuantity(item, $event)" /></label>
+            <button @click="$store.commit('removeItem', item)" class="text-sm text-rose-700">Quitar</button>
           </div>
-        </div>
-
-        <div class="mt-8">
-          <div class="flow-root">
-            <ul role="list" class="-my-6 divide-y divide-gray-200">
-              <li v-for="item in items" :key="item.id" class="flex py-6">
-                <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                  <img :src="item.image"
-                    alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt."
-                    class="h-full w-full object-cover object-center" />
-                </div>
-
-                <div class="ml-4 flex flex-1 flex-col">
-                  <div>
-                    <h4 class="max-w-xs mb-1">
-                      <a href="#">{{ item.name }}</a>
-                    </h4>
-                    <h4 class="max-w-lg text-xs mb-3"><span class="font-bold">COP</span> {{ item.price }}</h4>
-                    <p class="text-sm text-gray-500">{{ item.category }}</p>
-                  </div>
-                  <div class="flex items-center justify-between text-sm">
-                    <p class="text-gray-500">Cantidad: {{ item.qty }}</p>
-
-                    <div class="flex">
-                      <button @click="removeFromCart(item)" type="button"
-                        class="font-medium text-primary text-opacity-70 hover:text-opacity-50 transition-all duration-300 ease-in-out">
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="border-t border-gray-200 px-4 py-6 sm:px-6">
-        <div class="flex justify-between text-base font-medium text-gray-900">
-          <p>Subtotal</p>
-          <p>${{ total }}</p>
-        </div>
-        <p class="mt-0.5 text-sm text-gray-500">
-          Envío e impuestos calculados al finalizar la compra.
-        </p>
-        <div class="mt-6">
-          <PrimaryButton @click="enviarOrden" text="Enviar Por Whatsapp" />
-        </div>
-        <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
-          <p>
-            o
-            <nuxt-link @click="close" to="/"
-              class="font-medium text-primary text-opacity-70 hover:text-opacity-50 transition-all duration-300 ease-in-out">
-              Seguir comprando
-              <span aria-hidden="true"> &rarr;</span>
-            </nuxt-link>
-          </p>
-        </div>
+        </li>
+      </ul>
+      <div class="border-t pt-5 space-y-4"><p class="font-semibold text-gray-900">Subtotal: {{ money(total) }}</p><p class="text-sm">Confirmaremos disponibilidad y envío por WhatsApp.</p>
+        <p v-if="error" role="alert" class="text-rose-700">{{ error }}</p>
+        <button @click="send" :disabled="busy || !items.length" class="w-full rounded-lg bg-secondary text-white p-3 disabled:opacity-50">{{ busy ? 'Verificando pedido…' : 'Enviar por WhatsApp' }}</button>
+        <nuxt-link to="/catalogo" @click="close" class="block text-center text-primary">Seguir comprando</nuxt-link>
       </div>
     </div>
   </section>
 </template>
-
 <script>
-import PrimaryButton from "./PrimaryButton.vue";
-
+import { formatMoney } from '@/lib/wines';
 export default {
-  props: {
-    showCart: { type: Boolean },
-  },
-  components: { PrimaryButton },
-  computed: {
-    items() {
-      return this.$store.getters.cartItems;
-    },
-    total() {
-      return this.$store.getters.cartTotal;
-    },
-  },
+  props: { showCart: Boolean }, emits: ['click'],
+  data() { return { busy: false, error: '' }; },
+  computed: { items() { return this.$store.getters.cartItems; }, total() { return this.$store.getters.cartTotal; } },
+  watch: { showCart(value) { if (value) this.$nextTick(() => this.$refs.panel?.focus()); } },
   methods: {
-    close() {
-      this.$emit("click");
+    money(value) { return formatMoney(value, this.$config.public.currency); },
+    close() { this.$emit('click'); },
+    setQuantity(item, event) {
+      const qty = Number(event.target.value);
+      if (!Number.isSafeInteger(qty) || qty < 1 || qty > 1000000 || (item.maxQty && qty > item.maxQty)) { this.error = 'Revisa la cantidad de botellas.'; event.target.value = item.qty; return; }
+      this.error = ''; this.$store.commit('setCartQuantity', { id: item.id, qty });
     },
-    enviarOrden() {
-      var number = +59896260462;
-      var pedido = "";
-      var total = this.total;
-      const itemsLength = this.items.length;
-      for (let i = 0; i < itemsLength; i++) {
-        const item = this.items[i];
-        pedido = pedido + "x" + item.qty + ' ' + item.name + ' || ';
-        console.log(item.name + item.qty);
-      }
-      window.open(
-        `https://api.whatsapp.com/send?phone=${number}&text=%20${pedido}. **SUBTOTAL:${total}**`
-      );
-    },
-    removeFromCart(item) {
-      const index = this.$store.state.cart.items.findIndex(
-        (cartItem) => cartItem.id === item.id
-      );
-      if (index !== -1) {
-        this.$store.commit("removeItem", item);
-      }
+    async send() {
+      if (this.busy) return;
+      // Open synchronously so the browser does not block the window after the live check.
+      const popup = window.open('about:blank', '_blank');
+      if (popup) popup.opener = null;
+      this.busy = true; this.error = '';
+      try { const url = await this.$store.dispatch('enviarOrden'); if (popup) popup.location.href = url; else window.location.assign(url); }
+      catch (error) { popup?.close(); this.error = error.message || 'No se pudo verificar el pedido. Revisa tu conexión.'; }
+      finally { this.busy = false; }
     },
   },
 };
 </script>
-
-<style></style>

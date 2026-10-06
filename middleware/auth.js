@@ -1,31 +1,11 @@
-import { firebase } from "@/plugins/firebase";
-
-function waitForAuthState() {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = firebase.auth().onAuthStateChanged(
-      (user) => {
-        unsubscribe();
-        resolve(user);
-      },
-      (error) => {
-        unsubscribe();
-        reject(error);
-      }
-    );
-  });
-}
-
-export default async function ({ redirect }) {
+import { firebase } from '@/lib/firebase';
+import { waitForAuth } from '@/lib/auth';
+export default defineNuxtRouteMiddleware(async () => {
+  if (import.meta.server) return;
   try {
-    const currentUser =
-      firebase.auth().currentUser ||
-      (process.client ? await waitForAuthState() : null);
-
-    if (!currentUser) {
-      return redirect("/login");
-    }
-  } catch (error) {
-    console.error("Error verificando autenticación:", error);
-    return redirect("/login");
+    const user = await waitForAuth(firebase.auth());
+    if (!user) return navigateTo('/login');
+  } catch {
+    return navigateTo('/login?reason=verification');
   }
-}
+});

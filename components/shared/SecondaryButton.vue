@@ -8,7 +8,7 @@
 </template>
 
 <script>
-export default {};
+export default { emits: ['click'] };
 </script>
 
 <style scoped>

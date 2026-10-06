@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Every Authentication account is an administrator. Disable end-user signup in Firebase before deploying.
+    function admin() { return request.auth != null; }
+    match /{path=**} { allow read: if true; }
+    match /products/{productId}/{filename} {
+      allow create, update: if admin() && request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/(jpeg|png|webp)');
+      allow delete: if admin();
+    }
+  }
+}

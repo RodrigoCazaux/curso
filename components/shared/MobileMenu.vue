@@ -3,7 +3,7 @@
     class="bg-secondary flex flex-col h-screen w-8/12 fixed top-0 left-0 z-50 px-10 py-6"
     aria-label="Menú móvil"
   >
-    <nuxt-link to="/" class="-m-1.5 p-1.5" @click.native="closeMenu">
+    <nuxt-link to="/" class="-m-1.5 p-1.5" @click="closeMenu">
       <img
         class="h-12 w-auto mb-10"
         src="@/assets/images/isotipoInquieto.svg"
@@ -16,7 +16,7 @@
       <li>
         <nuxt-link
           to="/"
-          @click.native="closeMenu"
+          @click="closeMenu"
           class="flex items-center space-x-2 text-lg gap-x-1 font-semibold leading-6 text-opacity-60"
         >
           <HomeIcon class="h-5 w-5" />
@@ -26,7 +26,7 @@
       <li>
         <nuxt-link
           to="/catalogo"
-          @click.native="closeMenu"
+          @click="closeMenu"
           class="flex items-center space-x-2 text-lg gap-x-1 font-semibold leading-6 text-opacity-60"
         >
           <BookIcon class="h-5 w-5" />
@@ -36,7 +36,7 @@
       <li>
         <nuxt-link
           to="/nosotros"
-          @click.native="closeMenu"
+          @click="closeMenu"
           class="flex items-center space-x-2 text-lg font-semibold leading-6 text-opacity-60"
         >
           <UsersIcon class="h-5 w-5" />
@@ -53,6 +53,7 @@ import BookIcon from "~/components/shared/icons/BookIcon.vue";
 import UsersIcon from "~/components/shared/icons/UsersIcon.vue";
 
 export default {
+  emits: ['openMobileMenu'],
   components: { HomeIcon, BookIcon, UsersIcon },
   methods: {
     closeMenu() {

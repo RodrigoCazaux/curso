@@ -18,7 +18,7 @@
         <img
           alt="Banner imagen"
           class="object-cover h-60 w-128"
-          src="https://firebasestorage.googleapis.com/v0/b/curso-aa826.appspot.com/o/banner.jpeg?alt=media&token=8c33fadf-da1c-43c8-abc9-a15a2ff64dd5"
+          src="@/assets/images/bannerInquietos.jpg"
         />
       </div>
       <h3 class="uppercase">Vinos finos del Uruguay</h3>
@@ -32,14 +32,14 @@
       </p>
     </section>
     <section class="py-28 space-y-20">
-      <div class="flex space-x-20">
-        <div class="bg-gray-200 h-96 w-6/12">
+      <div class="flex flex-col md:flex-row gap-8 md:gap-20">
+        <div class="bg-gray-200 h-96 w-full md:w-6/12">
           <img
             class="object-cover w-full h-full top-0"
-            src="https://uploads-ssl.webflow.com/636f2dc9ef41c9384311dd93/637e89bde717ce67dabfca81_Santiago.png"
+            src="@/assets/images/SantiagoCazaux.jpg"
           />
         </div>
-        <div class="w-6/12">
+        <div class="w-full md:w-6/12">
           <h3 class="mb-2">Eventos de degustación</h3>
           <hr class="mb-2 border-primary border-opacity-30 w-1/12" />
           <p>
@@ -56,8 +56,8 @@
           </p>
         </div>
       </div>
-      <div class="flex space-x-20">
-        <div class="w-6/12">
+      <div class="flex flex-col md:flex-row gap-8 md:gap-20">
+        <div class="w-full md:w-6/12">
           <h3 class="mb-2">Visitas educativas a las mejores bodegas</h3>
           <hr class="mb-2 border-primary border-opacity-30 w-1/12" />
           <p>
@@ -74,7 +74,7 @@
             próximos eventos y visitas!
           </p>
         </div>
-        <div class="bg-gray-200 h-96 w-6/12">
+        <div class="bg-gray-200 h-96 w-full md:w-6/12">
           <img
             class="object-cover w-full h-full"
             src="https://uploads-ssl.webflow.com/636f2dc9ef41c9384311dd93/637e8a807a9f4cb8cf6ae335_eventoUno.png"
@@ -85,29 +85,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  head() {
-    const baseUrl = process.env.SITE_URL || "https://inquieto.com";
-    const url = `${baseUrl}${this.$route.path}`;
-    const title = "Sobre Inquieto | Cultura del vino en Uruguay";
-    const description =
-      "Conoce cómo difundimos la cultura del vino con experiencias, catas y visitas a bodegas uruguayas.";
-
-    return {
-      title,
-      meta: [
-        { hid: "description", name: "description", content: description },
-        { hid: "og:title", property: "og:title", content: title },
-        { hid: "og:description", property: "og:description", content: description },
-        { hid: "og:url", property: "og:url", content: url },
-        { hid: "twitter:title", name: "twitter:title", content: title },
-        { hid: "twitter:description", name: "twitter:description", content: description },
-      ],
-      link: [{ rel: "canonical", href: url }],
-    };
-  },
-};
+<script setup>
+useWineSeo('Sobre Inquieto | Cultura del vino en Uruguay', 'Conoce cómo difundimos la cultura del vino con experiencias, catas y visitas a bodegas uruguayas.');
 </script>
 
 <style></style>

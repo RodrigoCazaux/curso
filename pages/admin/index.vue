@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Inventario de productos</h1>
+        <h1 class="text-2xl font-semibold text-gray-900">Catálogo de vinos</h1>
         <p class="text-sm text-gray-500">Gestiona, crea y actualiza el catálogo disponible en la tienda.</p>
       </div>
       <nuxt-link
@@ -11,9 +11,10 @@
       >
         + Nuevo producto
       </nuxt-link>
+      <nuxt-link to="/admin/backup" class="text-secondary underline">Respaldo y mantenimiento</nuxt-link>
     </div>
 
-    <div v-if="feedback.message" :class="feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'" class="rounded-md border px-4 py-3 text-sm flex items-center justify-between">
+    <div v-if="feedback.message" :role="feedback.type === 'error' ? 'alert' : 'status'" :class="feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'" class="rounded-md border px-4 py-3 text-sm flex items-center justify-between">
       <span>{{ feedback.message }}</span>
       <button type="button" class="text-xs uppercase tracking-wide" @click="clearFeedback">Cerrar</button>
     </div>
@@ -38,7 +39,7 @@
         <input
           v-model.trim="searchTerm"
           type="search"
-          placeholder="Buscar por nombre o handle…"
+          placeholder="Buscar por nombre…"
           class="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
         />
         <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -56,6 +57,7 @@
             <option value="all">Todos</option>
             <option value="in">En stock</option>
             <option value="out">Sin stock</option>
+            <option value="archived">Archivados</option>
           </select>
         </div>
         <div class="flex items-center gap-2">
@@ -103,7 +105,7 @@
             <th scope="col" class="px-6 py-3 w-1/4">Nombre de producto</th>
             <th scope="col" class="px-6 py-3">Categoría</th>
             <th scope="col" class="px-6 py-3">Bodega</th>
-            <th scope="col" class="px-6 py-3">Precio</th>
+            <th scope="col" class="px-6 py-3">Precio ({{ $config.public.currency }})</th>
             <th scope="col" class="px-6 py-3">Estado</th>
             <th scope="col" class="px-6 py-3 text-right">Acciones</th>
           </tr>
@@ -125,14 +127,16 @@
             <td class="px-6 py-4 text-xs font-medium text-gray-900">
               {{ product.product_bodega || '—' }}
             </td>
-            <td class="px-6 py-4 font-medium text-gray-900">${{ product.variant_price }}</td>
+            <td class="px-6 py-4 font-medium text-gray-900">
+              <form @submit.prevent="savePrice(product)" class="flex gap-2"><input type="number" min="0" max="100000000" step="0.01" required :aria-label="`Precio de ${product.product_name}`" :value="priceDrafts[product.id] ?? product.variant_price" @input="priceDrafts[product.id] = Number($event.target.value)" class="w-28 border rounded p-2" /><button :disabled="busyId === product.id" class="text-secondary">Guardar</button></form>
+            </td>
             <td class="px-6 py-4">
-              <span
+              <button type="button" @click="toggleAvailability(product)" :disabled="busyId === product.id || product.archived"
                 :class="product.stock ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
                 class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
               >
-                {{ product.stock ? 'En stock' : 'Sin stock' }}
-              </span>
+                {{ product.archived ? 'Archivado' : product.stock ? 'En stock' : 'Sin stock' }}
+              </button>
             </td>
             <td class="px-6 py-4 flex items-center justify-end space-x-3">
               <nuxt-link
@@ -142,7 +146,9 @@
                 <EditIcon class="w-4 h-4" />
                 <span>Editar</span>
               </nuxt-link>
-              <button
+              <button type="button" :disabled="busyId === product.id" @click="duplicate(product)" class="text-secondary">Duplicar</button>
+              <button type="button" :disabled="busyId === product.id" @click="archive(product)" class="text-secondary">{{ product.archived ? 'Restaurar' : 'Archivar' }}</button>
+              <button v-if="product.archived"
                 type="button"
                 @click="openDeleteModal(product)"
                 :disabled="deletingProductId === product.id"
@@ -158,6 +164,7 @@
       <div v-if="isLoading" class="p-8 text-center text-sm text-gray-500">
         Cargando productos…
       </div>
+      <div v-else-if="loadError" role="alert" class="p-8 text-rose-700">No se pudo cargar el catálogo. <button @click="loadProducts" class="underline">Reintentar</button></div>
       <div v-else-if="!displayProducts.length" class="p-8 text-center text-sm text-gray-500">
         No se encontraron productos. Crea uno nuevo para empezar a gestionar el catálogo.
       </div>
@@ -212,6 +219,9 @@
   </div>
 </template>
 
+<script setup>
+definePageMeta({ middleware: "auth", layout: "admin" });
+</script>
 <script>
 import EditIcon from "~/components/shared/icons/EditIcon.vue";
 import TrashIcon from "~/components/shared/icons/TrashIcon.vue";
@@ -219,8 +229,6 @@ import { mapState, mapActions } from 'vuex';
 
 export default {
   components: { EditIcon, TrashIcon },
-  middleware: "auth",
-  layout: "admin",
   data() {
     return {
       searchTerm: "",
@@ -228,6 +236,9 @@ export default {
       categoryFilter: "",
       bodegaFilter: "",
       isLoading: false,
+      loadError: false,
+      busyId: null,
+      priceDrafts: {},
       deletingProductId: null,
       feedback: {
         type: null,
@@ -278,6 +289,7 @@ export default {
     displayProducts() {
       const items = Array.isArray(this.filteredProducts) ? this.filteredProducts : [];
       return items.filter((item) => {
+        if (this.stockFilter === "archived" ? !item.archived : item.archived) return false;
         const matchesSearch = this.searchTerm
           ? [item.product_name, item.product_handle, item.id]
               .filter(Boolean)
@@ -287,7 +299,7 @@ export default {
           : true;
 
         const matchesStock =
-          this.stockFilter === "all"
+          ["all", "archived"].includes(this.stockFilter)
             ? true
             : this.stockFilter === "in"
             ? Boolean(item.stock)
@@ -311,10 +323,11 @@ export default {
       });
     },
   },
-  created() {
+  mounted() {
     this.loadProducts();
+    if (this.$route.query.created) this.showFeedback("success", "Vino creado correctamente.");
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.feedbackTimeout) {
       clearTimeout(this.feedbackTimeout);
     }
@@ -325,8 +338,10 @@ export default {
     async loadProducts() {
       try {
         this.isLoading = true;
+        this.loadError = false;
         await Promise.all([this.fetchProducts(), this.fetchCategories(), this.fetchBodegas()]);
       } catch (error) {
+        this.loadError = true;
         console.error("Error al cargar datos de inventario:", error);
         this.showFeedback("error", "No se pudieron cargar los datos. Intenta nuevamente.");
       } finally {
@@ -334,9 +349,27 @@ export default {
       }
     },
 
+    async perform(product, action, payload, message) {
+      if (this.busyId) return;
+      this.busyId = product.id;
+      try { const result = await this.$store.dispatch(action, payload); this.showFeedback('success', message); return result; }
+      catch (error) { this.showFeedback('error', error.message || 'No se pudo guardar el cambio.'); }
+      finally { this.busyId = null; }
+    },
+    async savePrice(product) {
+      const value = this.priceDrafts[product.id] ?? product.variant_price;
+      await this.perform(product, 'quickUpdate', { id: product.id, variant_price: value }, 'Precio guardado.');
+    },
+    async toggleAvailability(product) { await this.perform(product, 'quickUpdate', { id: product.id, stock: !product.stock }, 'Disponibilidad guardada.'); },
+    async archive(product) { await this.perform(product, 'setArchived', { id: product.id, archived: !product.archived }, product.archived ? 'Vino restaurado.' : 'Vino archivado. Puedes restaurarlo desde el filtro Archivados.'); },
+    async duplicate(product) {
+      const id = await this.perform(product, 'duplicateProduct', product.id, 'Copia creada sin disponibilidad. Revisa la añada, precio y existencias.');
+      if (id) await this.$router.push(`/admin/${id}`);
+    },
     showFeedback(type, message) {
       if (this.feedbackTimeout) clearTimeout(this.feedbackTimeout);
       this.feedback = { type, message };
+      if (type === "error") { this.feedbackTimeout = null; return; }
       this.feedbackTimeout = setTimeout(() => {
         this.feedback = { type: null, message: "" };
         this.feedbackTimeout = null;

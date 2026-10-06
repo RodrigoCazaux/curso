@@ -69,8 +69,8 @@
                 <li>
                   <a
                     class="text-gray-800 hover:text-primary text-opacity-70 hover:text-opacity-70 transition-all ease-out duration-300 block pb-2"
-                    href="tel:096260462"
-                    >096260462</a
+                    :href="`tel:+${$config.public.whatsappNumber}`"
+                    >{{ $config.public.whatsappNumber }}</a
                   >
                 </li>
                 <li>
@@ -93,9 +93,9 @@
       >
         <div class="w-full md:w-4/12 px-4 mx-auto text-center">
           <div class="text-xs text-gray-600 py-1">
-            Diseño y desarrollo by:
+            Diseño y desarrollo:
             <a
-              href="https://www.creative-tim.com"
+              href="/"
               class="text-gray-600 hover:secondary"
               >Index webs Creative team</a
             >.

@@ -13,6 +13,8 @@
       @input="emitInput"
       type="number"
       min="1"
+      max="1000000"
+      step="1"
       class="w-14 text-center bg-transparent text-gray-800 font-semibold focus:outline-none"
       name="custom-input-number"
       aria-label="Cantidad"
@@ -30,6 +32,7 @@
 
 <script>
 export default {
+  emits: ['input'],
   props: {
     value: {
       type: Number,
@@ -49,7 +52,7 @@ export default {
   methods: {
     emitInput() {
       const parsed = Number(this.internalValue);
-      const safe = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+      const safe = Number.isSafeInteger(parsed) && parsed > 0 && parsed <= 1000000 ? parsed : 1;
       this.internalValue = safe;
       this.$emit("input", safe);
     },

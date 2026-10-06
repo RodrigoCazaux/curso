@@ -4,6 +4,7 @@
 
 <script>
 export default {
+  emits: ['click'],
   props: {
     text: { type: String,default:'Text' },
   },
