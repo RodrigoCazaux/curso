@@ -1,4 +1,5 @@
 [build]
+  # generate fija el preset static para evitar que Netlify cambie la salida a dist.
   command = "npm run generate"
   publish = ".output/public"
 

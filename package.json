@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "start": "nuxt preview",
-    "generate": "nuxt generate",
+    "generate": "nuxt generate --preset static",
     "postinstall": "nuxt prepare",
     "test": "vitest run",
     "test:rules": "firebase emulators:exec --project demo-inquieto --only firestore,storage \"vitest run test/rules.spec.js\"",

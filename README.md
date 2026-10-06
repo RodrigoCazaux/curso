@@ -87,6 +87,7 @@ Para recuperar un vino archivado, elegir Estado → Archivados → Restaurar. El
 
 - Construcción: `npm run generate`.
 - Directorio publicado: `.output/public`.
+- La generación fija `--preset static`: sin él, la detección automática de Netlify cambia la salida a `dist`, incompatible con el directorio publicado.
 - Node 22.
 - Fallback a `/200.html` para que vinos nuevos y rutas administrativas funcionen por enlace directo sin reconstruir el catálogo.
 - Cabeceras básicas de seguridad.
